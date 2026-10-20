@@ -200,6 +200,12 @@
   .chip:hover { background: rgba(127,127,127,.16); }
   .chip svg { width: 17px; height: 17px; }
   .chip[aria-checked="true"] { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent-strong) 55%, transparent); color: var(--accent); font-weight: 650; }
+  .lang-row { display: flex; align-items: center; gap: 8px; margin: -4px 0 12px; color: var(--text-3); font-size: 12.5px; }
+  .lang-row[hidden] { display: none; }
+  .lang-row select {
+    font: 12.5px -apple-system, BlinkMacSystemFont, sans-serif; color: var(--text);
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 3px 6px;
+  }
   .editor {
     background: var(--surface); border: 1.5px solid var(--accent-strong); border-radius: 10px; overflow: hidden;
   }
@@ -433,7 +439,15 @@
               <button type="button" class="chip" role="radio" aria-checked="true" data-mode="fix"><svg><use href="#i-check"/></svg>Fix</button>
               <button type="button" class="chip" role="radio" aria-checked="false" data-mode="polish"><svg><use href="#i-wand"/></svg>Polish</button>
               <button type="button" class="chip" role="radio" aria-checked="false" data-mode="en"><svg><use href="#i-globe"/></svg>English</button>
-              <button type="button" class="chip" role="radio" aria-checked="false" data-mode="de"><svg><use href="#i-globe"/></svg>German</button>
+              <button type="button" class="chip" role="radio" aria-checked="false" data-mode="lang"><svg><use href="#i-globe"/></svg><span id="demo-lang-chip">German</span></button>
+            </div>
+
+            <div class="lang-row" id="demo-lang-row" hidden>
+              <label for="demo-lang">Translate to</label>
+              <select id="demo-lang">
+                <option>German</option><option>Spanish</option><option>French</option><option>Japanese</option>
+              </select>
+              <span>· 34 languages in the app</span>
             </div>
 
             <div class="editor">
@@ -482,7 +496,7 @@
     <div class="wrap">
       <div class="kicker">Four modes</div>
       <h2>Fix it, polish it, or translate it.</h2>
-      <p class="section-lede">Switch with a click or <kbd>⌘</kbd><kbd>1</kbd>–<kbd>4</kbd>. GrammarBar remembers your last mode, and <em>Use as input</em> lets you chain them — translate, then polish.</p>
+      <p class="section-lede">Switch with a click or <kbd>⌘</kbd><kbd>1</kbd>–<kbd>4</kbd>. Translate into English or any of 34 languages. GrammarBar remembers your last mode and language, and <em>Use as input</em> lets you chain them — translate, then polish.</p>
       <div class="modes">
         <div class="mode">
           <h3><svg><use href="#i-check"/></svg>Fix grammar<span class="k">⌘1</span></h3>
@@ -506,10 +520,11 @@
           </div>
         </div>
         <div class="mode">
-          <h3><svg><use href="#i-globe"/></svg>Translate to German<span class="k">⌘4</span></h3>
+          <h3><svg><use href="#i-globe"/></svg>Translate to any language<span class="k">⌘4</span></h3>
           <div class="pair">
-            <div><div class="lbl">English</div><div class="from plain">Dear Ms. Weber, thank you for your quick reply.</div></div>
-            <div><div class="lbl">German · keeps <em>Sie</em></div><div class="to">Sehr geehrte Frau Weber, vielen Dank für Ihre schnelle Antwort.</div></div>
+            <div><div class="lbl">English</div><div class="from plain">Dear Mr. Lopez, could you please send me the signed contract by Friday?</div></div>
+            <div><div class="lbl">Spanish · keeps formal <em>usted</em></div><div class="to">Estimado Sr. López, ¿podría enviarme el contrato firmado para el viernes, por favor?</div></div>
+            <div><div class="lbl">Pick from 34 languages</div><div class="from plain">German · Spanish · French · Japanese · Hindi · Arabic · Chinese · Portuguese · …</div></div>
           </div>
         </div>
       </div>
@@ -613,7 +628,8 @@ mv GrammarBar.app /Applications/</pre>
       <div class="faq">
         <details><summary>Does it cost anything?</summary><p>GrammarBar is free and open source. Requests use your existing Claude Code plan or usage, like any other <code>claude</code> command.</p></details>
         <details><summary>Which model does it use?</summary><p>Claude Haiku by default, for speed. Change <code>claudeModel</code> in <code>Config.swift</code> to <code>"sonnet"</code> and rebuild for higher quality.</p></details>
-        <details><summary>Can I add my own languages or modes?</summary><p>Yes — each mode is a single case with its instruction in <code>Mode.swift</code>. Adding "Translate to Spanish" is a few lines.</p></details>
+        <details><summary>Which languages can it translate to?</summary><p>English has its own mode, and <em>Translate to …</em> covers 34 more — German, Spanish, French, Japanese, Hindi, Arabic, Chinese and others — picked from a menu in the card. It matches formal or informal address (du/Sie, tu/vous, tú/usted) to your original.</p></details>
+        <details><summary>Can I add my own languages or modes?</summary><p>Yes. A language is one line in <code>Language.swift</code>; a new mode is a single case with its instruction in <code>Mode.swift</code>.</p></details>
         <details><summary>It says “claude CLI not found”.</summary><p>Install Claude Code and run <code>claude</code> once in Terminal to log in. GrammarBar checks the common install locations and your login shell's PATH.</p></details>
         <details><summary>Why isn't there a download button?</summary><p>GrammarBar is signed with its own certificate rather than an Apple-notarized one, so a zip downloaded in the browser triggers a Gatekeeper warning. Homebrew and the install script verify the download and install it without that prompt, so they're the only supported ways to install.</p></details>
         <details><summary>How do I update or uninstall?</summary><p>Homebrew: <code>brew upgrade --cask grammarbar</code> / <code>brew uninstall --cask grammarbar</code>. Install script: run it again to update, or add <code>-s -- --uninstall</code> after <code>bash</code> to remove it.</p></details>
@@ -674,15 +690,16 @@ mv GrammarBar.app /Applications/</pre>
     en:     { name: 'Translate to English',  action: 'Translate', icon: '#i-globe',
               input: 'Hallo Anna, kannst du mir bitte bis morgen die Folien schicken? Danke! 🙏',
               output: 'Hi Anna, could you please send me the slides by tomorrow? Thanks! 🙏' },
-    de:     { name: 'Translate to German',   action: 'Translate', icon: '#i-globe',
+    lang:   { name: 'Translate to',          action: 'Translate', icon: '#i-globe',
               input: 'Dear Ms. Weber, thank you for your quick reply. The meeting has moved to 3 pm.',
-              output: 'Sehr geehrte Frau Weber, vielen Dank für Ihre schnelle Antwort. Das Meeting wurde auf 15 Uhr verschoben.' }
+              outputs: {"German": "Liebe Frau Weber, vielen Dank für Ihre schnelle Antwort. Das Treffen wurde auf 15 Uhr verlegt.", "Spanish": "Estimada Señora Weber, le agradezco su rápida respuesta. La reunión se ha trasladado a las 3 de la tarde.", "French": "Chère Mme Weber, merci pour votre réponse rapide. La réunion a été reportée à 15h.", "Japanese": "ウェーバー様\n\n迅速なご返信をいただき、ありがとうございます。会議は午後3時に変更になりました。"} }
   };
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var $ = function (id) { return document.getElementById(id); };
   var input = $('demo-input'), count = $('demo-count'), sub = $('demo-sub'), action = $('demo-action'),
       submit = $('demo-submit'), statusEl = $('demo-status'), result = $('demo-result'),
-      output = $('demo-output'), copied = $('demo-copied');
+      output = $('demo-output'), copied = $('demo-copied'),
+      langRow = $('demo-lang-row'), langSelect = $('demo-lang'), langChip = $('demo-lang-chip');
   var current = 'fix', timers = [];
 
   function clearTimers() { timers.forEach(clearTimeout); timers = []; }
@@ -693,7 +710,8 @@ mv GrammarBar.app /Applications/</pre>
     current = key;
     var m = MODES[key];
     document.querySelectorAll('.chip').forEach(function (c) { c.setAttribute('aria-checked', c.dataset.mode === key ? 'true' : 'false'); });
-    sub.textContent = m.name;
+    sub.textContent = key === 'lang' ? m.name + ' ' + langSelect.value : m.name;
+    langRow.hidden = key !== 'lang';
     action.textContent = m.action;
     submit.querySelector('use').setAttribute('href', m.icon);
     input.value = m.input;
@@ -715,7 +733,7 @@ mv GrammarBar.app /Applications/</pre>
       statusEl.classList.remove('on');
       result.classList.add('on');
       copied.style.visibility = 'hidden';
-      var text = isExample ? m.output
+      var text = isExample ? (m.outputs ? m.outputs[langSelect.value] : m.output)
         : 'This demo only has example outputs. Install GrammarBar to process your own text with Claude.';
       if (reduceMotion) {
         output.textContent = text; finish();
@@ -734,6 +752,7 @@ mv GrammarBar.app /Applications/</pre>
 
   document.querySelectorAll('.chip').forEach(function (c) { c.addEventListener('click', function () { selectMode(c.dataset.mode); }); });
   submit.addEventListener('click', run);
+  langSelect.addEventListener('change', function () { langChip.textContent = langSelect.value; selectMode('lang'); });
   input.addEventListener('input', updateCount);
   input.addEventListener('keydown', function (e) {
     if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); run(); }
