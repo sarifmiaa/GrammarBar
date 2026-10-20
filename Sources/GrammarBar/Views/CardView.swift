@@ -141,7 +141,7 @@ struct CardView: View {
                     .padding(.horizontal, 6)
                     .padding(.top, 8)
                 if model.input.isEmpty {
-                    Text("Type or paste text…")
+                    Text("Type or paste text… or press ⌃⌥G anywhere to capture a field")
                         .font(.system(size: 13))
                         .foregroundColor(.secondary)
                         .accessibilityHidden(true)
@@ -308,18 +308,25 @@ struct CardView: View {
     // MARK: Footer
 
     private var footer: some View {
-        HStack(spacing: 4) {
-            Image(systemName: "cpu").accessibilityHidden(true)
-            Text("Claude \(claudeModel.capitalized)")
-            Text("·").accessibilityHidden(true)
-            Text("⌘1–4 switch mode")
-            Spacer()
-            Text("Esc to close")
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 4) {
+                Image(systemName: "cpu").accessibilityHidden(true)
+                Text("Claude \(claudeModel.capitalized)")
+                Text("·").accessibilityHidden(true)
+                Text("⌘1–4 switch mode")
+                Spacer()
+                Text("Esc to close")
+            }
+            HStack(spacing: 4) {
+                Image(systemName: "keyboard").accessibilityHidden(true)
+                Text("⌃⌥G captures a field from any app")
+                Spacer()
+            }
         }
         .font(.caption2)
         .foregroundColor(.secondary)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Model Claude \(claudeModel.capitalized). Command 1 to 4 switches mode. Escape closes.")
+        .accessibilityLabel("Model Claude \(claudeModel.capitalized). Command 1 to 4 switches mode. Escape closes. Control Option G captures a text field from any app, anywhere.")
     }
 
     private func focusInput() {

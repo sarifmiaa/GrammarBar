@@ -24,6 +24,7 @@ no API keys to manage: it reuses the Claude Code CLI you are already logged in t
 
 ## Features
 
+- **Capture from anywhere** — put your cursor in a field in Teams, Slack, a browser or any other app and press <kbd>⌃</kbd><kbd>⌥</kbd><kbd>G</kbd>: the whole field is copied straight into the card, ready to fix.
 - **Four modes** — *Fix grammar*, *Polish / make natural*, *Translate to English*, and *Translate to …* any of 34 languages picked from a menu (German by default). Your last mode and language are remembered.
 - **Clipboard-first** — every result is copied automatically; *Use as input* lets you chain modes (e.g. translate, then polish).
 - **Stays out of the way** — lives only in the menu bar; the card stays open while you copy text from other apps and closes with <kbd>Esc</kbd>.
@@ -87,15 +88,30 @@ so they are the supported ways to install. The certificate's fingerprint is pinn
 
 ## Usage
 
-1. Click the GrammarBar icon (a text block with a checkmark) in the menu bar.
+1. Click the GrammarBar icon (a text block with a checkmark) in the menu bar — or put your cursor in any
+   text field and press <kbd>⌃</kbd><kbd>⌥</kbd><kbd>G</kbd> to pull its contents straight into the card.
 2. Choose a mode, type or paste text, press <kbd>⌘</kbd><kbd>↩</kbd>.
    For *Translate to …*, pick the target language from the **Translate to** menu under the mode buttons.
 3. The result appears below the input and is copied to the clipboard.
+
+### Capture from anywhere
+
+<kbd>⌃</kbd><kbd>⌥</kbd><kbd>G</kbd> works in any app — Teams, Slack, a browser, Mail, anything with a text
+field. Put your cursor in the field and press it: GrammarBar simulates <kbd>⌘</kbd><kbd>A</kbd> then
+<kbd>⌘</kbd><kbd>C</kbd> to select and copy the whole field, then opens the card with it already in the
+input, ready for you to pick a mode and submit. It always grabs the entire field — there's no way to copy
+just part of it with the shortcut; for that, select the part you want and use regular copy/paste instead.
+
+This needs **Accessibility** permission (System Settings → Privacy & Security → Accessibility → `GrammarBar`),
+since posting synthetic key events system-wide requires it. The first press shows the system's own prompt to
+grant it; nothing is captured until you do. GrammarBar never reads your screen or other apps' text on its
+own — it only ever sees what it explicitly copies via simulated keystrokes.
 
 ### Keyboard shortcuts
 
 | Shortcut | Action |
 | --- | --- |
+| <kbd>⌃</kbd><kbd>⌥</kbd><kbd>G</kbd> | Capture the current selection from any app |
 | <kbd>⌘</kbd><kbd>↩</kbd> | Submit |
 | <kbd>⌘</kbd><kbd>1</kbd> … <kbd>⌘</kbd><kbd>4</kbd> | Switch mode |
 | <kbd>Esc</kbd> | Leave history, then close the card |
@@ -142,6 +158,7 @@ claude -p "<mode instruction>" --model haiku --output-format text   # your text 
 | Requests fail with an auth error | Run `claude` in Terminal and log in again. |
 | Result includes extra commentary | Switch `claudeModel` to `"sonnet"`, or tighten the instruction in `Mode.swift`. |
 | Card does not appear | Check that `GrammarBar` is running (Activity Monitor). Menu bar managers such as Bartender may hide the icon. |
+| <kbd>⌃</kbd><kbd>⌥</kbd><kbd>G</kbd> does nothing | Grant Accessibility permission (System Settings → Privacy & Security → Accessibility → `GrammarBar`). If it was already granted but stopped working after a rebuild, remove and re-add it — ad-hoc signed builds get a new identity each time. |
 
 ## Project structure
 
@@ -162,7 +179,9 @@ Sources/GrammarBar/
 ├── Services/
 │   └── ClaudeRunner.swift       # finds and runs the claude CLI
 ├── Support/
-│   └── Accessibility.swift      # VoiceOver announcements
+│   ├── Accessibility.swift      # VoiceOver announcements
+│   ├── GlobalHotKey.swift       # Carbon hot key registration (⌃⌥G)
+│   └── SelectionCapture.swift   # simulates ⌘A⌘C to grab the focused field's text from any app
 └── Views/
     ├── CardView.swift           # main card
     ├── HistoryView.swift

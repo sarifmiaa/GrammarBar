@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import Carbon.HIToolbox
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -7,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let popover = NSPopover()
     private let model = GrammarModel()
     private var escMonitor: Any?
+    private var captureHotKey: GlobalHotKey?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -35,17 +37,45 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
             return nil
         }
+
+        // Control+Option+G: copy the current selection from any app and show it in the card.
+        captureHotKey = GlobalHotKey(keyCode: UInt32(kVK_ANSI_G), modifiers: UInt32(controlKey | optionKey)) { [weak self] in
+            Task { @MainActor in self?.captureSelectionAndShow() }
+        }
+    }
+
+    private func captureSelectionAndShow() {
+        guard SelectionCapture.isAccessibilityTrusted() else {
+            SelectionCapture.requestAccessibilityPermission()
+            return
+        }
+        Task {
+            let text = await SelectionCapture.captureSelectedText()
+            await MainActor.run {
+                if let text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    model.input = text
+                }
+                showPopover()
+            }
+        }
     }
 
     @objc private func togglePopover() {
         if popover.isShown {
             closePopover()
-        } else if let button = statusItem.button {
-            NSApp.activate(ignoringOtherApps: true)
+        } else {
+            showPopover()
+        }
+    }
+
+    private func showPopover() {
+        guard let button = statusItem.button else { return }
+        NSApp.activate(ignoringOtherApps: true)
+        if !popover.isShown {
             popover.animates = !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
-            popover.contentViewController?.view.window?.makeKey()
         }
+        popover.contentViewController?.view.window?.makeKey()
     }
 
     private func closePopover() {
