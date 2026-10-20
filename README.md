@@ -8,6 +8,7 @@
 ![Swift](https://img.shields.io/badge/Swift-5.9%2B-F05138?logo=swift&logoColor=white)
 ![SwiftUI](https://img.shields.io/badge/UI-SwiftUI-0A84FF)
 [![Build](https://github.com/sarifmiaa/GrammarBar/actions/workflows/build.yml/badge.svg)](https://github.com/sarifmiaa/GrammarBar/actions/workflows/build.yml)
+[![Release](https://img.shields.io/github/v/release/sarifmiaa/GrammarBar)](https://github.com/sarifmiaa/GrammarBar/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 </div>
@@ -37,6 +38,17 @@ no API keys to manage: it reuses the Claude Code CLI you are already logged in t
 
 ## Installation
 
+### Homebrew (recommended)
+
+```bash
+brew install --cask sarifmiaa/tap/grammarbar
+```
+
+Upgrade with `brew upgrade --cask grammarbar`, remove with `brew uninstall --cask grammarbar`
+(add `--zap` to also delete history and settings).
+
+### Build from source
+
 ```bash
 git clone https://github.com/sarifmiaa/GrammarBar.git
 cd GrammarBar
@@ -48,8 +60,9 @@ mv GrammarBar.app /Applications/ && open /Applications/GrammarBar.app
 For a faster single-architecture build use `ARCHS=arm64 ./build.sh`.
 
 > [!NOTE]
-> The app is ad-hoc signed, not notarized. If you download a prebuilt zip (e.g. from a CI artifact) instead of building it yourself,
-> macOS may block the first launch — right-click the app and choose **Open**.
+> The app is ad-hoc signed, not notarized. The Homebrew cask clears the download quarantine for you. If you download the zip from
+> [Releases](https://github.com/sarifmiaa/GrammarBar/releases) manually, run `xattr -dr com.apple.quarantine GrammarBar.app`
+> or allow it under **System Settings → Privacy & Security** on first launch.
 
 ### Start at login
 
