@@ -4,7 +4,7 @@
 
 **Fix, polish and translate text from your Mac's menu bar — powered by [Claude Code](https://claude.com/claude-code).**
 
-[**Website**](https://sarifmiaa.github.io/GrammarBar/) · [Download](https://github.com/sarifmiaa/GrammarBar/releases/latest) · [Homebrew](#homebrew-recommended)
+[**Website**](https://sarifmiaa.github.io/GrammarBar/) · [Install](#installation) · [Changelog](https://github.com/sarifmiaa/GrammarBar/releases)
 
 ![macOS 13+](https://img.shields.io/badge/macOS-13%2B-000000?logo=apple&logoColor=white)
 ![Swift](https://img.shields.io/badge/Swift-5.9%2B-F05138?logo=swift&logoColor=white)
@@ -36,7 +36,7 @@ no API keys to manage: it reuses the Claude Code CLI you are already logged in t
 
 - macOS 13 Ventura or later (Apple Silicon or Intel)
 - [Claude Code](https://docs.claude.com/en/docs/claude-code/overview) installed and logged in — run `claude` once in Terminal
-- Xcode Command Line Tools to build (`xcode-select --install`)
+- Xcode Command Line Tools — only to build from source (`xcode-select --install`)
 
 ## Installation
 
@@ -48,6 +48,18 @@ brew install --cask sarifmiaa/tap/grammarbar
 
 Upgrade with `brew upgrade --cask grammarbar`, remove with `brew uninstall --cask grammarbar`
 (add `--zap` to also delete history and settings).
+
+### Install script
+
+No Homebrew? This downloads the latest release, verifies its SHA-256 checksum and code signature,
+and installs it to `/Applications`:
+
+```bash
+curl -fsSL https://sarifmiaa.github.io/GrammarBar/install.sh | bash
+```
+
+Run it again to update. Uninstall with `… | bash -s -- --uninstall` (add `--purge` to delete history and settings).
+[Read the script](docs/install.sh) before piping it into your shell.
 
 ### Build from source
 
@@ -61,10 +73,13 @@ mv GrammarBar.app /Applications/ && open /Applications/GrammarBar.app
 `build.sh` compiles a universal binary, writes the `Info.plist` and ad-hoc signs the bundle. No Xcode project is involved.
 For a faster single-architecture build use `ARCHS=arm64 ./build.sh`.
 
-> [!NOTE]
-> The app is ad-hoc signed, not notarized. The Homebrew cask clears the download quarantine for you. If you download the zip from
-> [Releases](https://github.com/sarifmiaa/GrammarBar/releases) manually, run `xattr -dr com.apple.quarantine GrammarBar.app`
-> or allow it under **System Settings → Privacy & Security** on first launch.
+### Why no download button?
+
+Releases are signed with GrammarBar's own self-signed certificate, which gives every version the same code identity
+but is not an Apple Developer ID, so the app is **not notarized**. A zip downloaded in the browser is quarantined
+and Gatekeeper would block it. Homebrew and the install script verify the download and install it without that prompt,
+so they are the supported ways to install. The certificate's fingerprint is pinned in
+[`install.sh`](docs/install.sh) and checked by the release workflow.
 
 ### Start at login
 

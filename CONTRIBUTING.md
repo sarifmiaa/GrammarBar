@@ -51,9 +51,13 @@ git tag -a v1.1.0 -m "GrammarBar 1.1.0" && git push origin v1.1.0
 
 The [Release workflow](.github/workflows/release.yml) then:
 
-1. builds the app and publishes `GrammarBar.zip` plus its checksum to GitHub Releases;
+1. builds the app, signs it with the project's self-signed certificate and publishes `GrammarBar.zip`
+   plus its checksum to GitHub Releases (used by both Homebrew and `install.sh`);
 2. updates `version` and `sha256` in [sarifmiaa/homebrew-tap](https://github.com/sarifmiaa/homebrew-tap),
    so `brew upgrade --cask grammarbar` picks up the new version.
+
+Signing needs the `MACOS_SIGN_P12_BASE64` and `MACOS_SIGN_P12_PASSWORD` secrets; the workflow refuses to release
+without them, because a different certificate would change the app's code identity and reset macOS permissions.
 
 Step 2 needs a `HOMEBREW_TAP_TOKEN` repository secret: a fine-grained personal access token limited to the
 `homebrew-tap` repository with **Contents: Read and write**. Without it (and for pre-release tags such as `v1.1.0-beta.1`)
