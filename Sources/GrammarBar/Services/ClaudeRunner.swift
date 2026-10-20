@@ -50,10 +50,10 @@ enum ClaudeRunner {
     }
 
     /// Blocking call — run off the main thread.
-    static func run(text: String, mode: Mode) throws -> String {
+    static func run(text: String, instruction: String) throws -> String {
         let process = Process()
         var env = environment()
-        let claudeArgs = ["-p", mode.instruction, "--model", claudeModel, "--output-format", "text"]
+        let claudeArgs = ["-p", instruction, "--model", claudeModel, "--output-format", "text"]
         let usingShell: Bool
 
         if let path = findClaude() {
@@ -62,7 +62,7 @@ enum ClaudeRunner {
             usingShell = false
         } else {
             // Fall back to a login shell so nvm/asdf/etc. setups can resolve `claude`.
-            env["GRAMMARBAR_PROMPT"] = mode.instruction
+            env["GRAMMARBAR_PROMPT"] = instruction
             env["GRAMMARBAR_MODEL"] = claudeModel
             process.executableURL = URL(fileURLWithPath: "/bin/zsh")
             process.arguments = [

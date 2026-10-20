@@ -21,23 +21,25 @@ final class GrammarModel: ObservableObject {
         }
     }
 
-    func submit(mode: Mode) {
+    func submit(mode: Mode, language: String) {
         let text = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty, !isRunning else { return }
         isRunning = true
         error = nil
         copied = false
         announce("Asking Claude")
+        let instruction = mode.instruction(language: language)
+        let entryLanguage = mode == .toLanguage ? language : nil
 
         Task.detached(priority: .userInitiated) {
-            let outcome = Result { try ClaudeRunner.run(text: text, mode: mode) }
+            let outcome = Result { try ClaudeRunner.run(text: text, instruction: instruction) }
             await MainActor.run {
                 self.isRunning = false
                 switch outcome {
                 case .success(let output):
                     self.result = output
                     self.copy()
-                    self.addToHistory(HistoryEntry(mode: mode.rawValue, input: text, output: output))
+                    self.addToHistory(HistoryEntry(mode: mode.rawValue, language: entryLanguage, input: text, output: output))
                     announce("Result ready and copied to clipboard: \(output)")
                 case .failure(let err):
                     self.error = err.localizedDescription

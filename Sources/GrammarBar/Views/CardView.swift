@@ -5,13 +5,14 @@ struct CardView: View {
     @ObservedObject var model: GrammarModel
     var onClose: () -> Void = {}
     @AppStorage("selectedMode") private var modeRaw = Mode.fixGrammar.rawValue
+    @AppStorage("targetLanguage") private var language = Language.defaultName
     @FocusState private var inputFocused: Bool
     @Environment(\.colorSchemeContrast) private var contrast
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var borderOpacity: Double { contrast == .increased ? 0.5 : 0.15 }
 
-    private var mode: Mode { Mode(rawValue: modeRaw) ?? .fixGrammar }
+    private var mode: Mode { Mode(stored: modeRaw) }
 
     private var canSubmit: Bool {
         !model.isRunning && !model.input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -26,13 +27,17 @@ struct CardView: View {
                     model.showingHistory = false
                     focusInput()
                 }) { entry in
-                    modeRaw = entry.mode
+                    modeRaw = entry.modeValue.rawValue
+                    if entry.modeValue == .toLanguage { language = entry.languageValue }
                     model.restore(entry)
                     model.showingHistory = false
                     focusInput()
                 }
             } else {
                 modePicker
+                if mode == .toLanguage {
+                    languagePicker
+                }
                 inputCard
                 actionRow
 
@@ -71,7 +76,7 @@ struct CardView: View {
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 0) {
                 Text("GrammarBar").font(.system(size: 13, weight: .semibold))
-                Text(model.showingHistory ? "History" : mode.rawValue).font(.caption).foregroundColor(.secondary)
+                Text(model.showingHistory ? "History" : mode.title(language: language)).font(.caption).foregroundColor(.secondary)
             }
             .accessibilityElement(children: .combine)
             .accessibilityAddTraits(.isHeader)
@@ -92,15 +97,34 @@ struct CardView: View {
     private var modePicker: some View {
         HStack(spacing: 6) {
             ForEach(Mode.allCases) { m in
-                ModeChip(mode: m, isSelected: m == mode) {
+                ModeChip(mode: m, language: language, isSelected: m == mode) {
                     modeRaw = m.rawValue
-                    announce("\(m.rawValue) selected")
+                    announce("\(m.title(language: language)) selected")
                 }
                 .keyboardShortcut(m.shortcut, modifiers: .command)
             }
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Mode")
+    }
+
+    // MARK: Target language
+
+    private var languagePicker: some View {
+        HStack(spacing: 6) {
+            Text("Translate to")
+                .foregroundColor(.secondary)
+            Picker("Target language", selection: $language) {
+                ForEach(Language.all, id: \.self) { Text($0).tag($0) }
+            }
+            .labelsHidden()
+            .pickerStyle(.menu)
+            .fixedSize()
+            .accessibilityLabel("Target language")
+            .onChange(of: language) { announce("Translating to \($0)") }
+            Spacer()
+        }
+        .font(.callout)
     }
 
     // MARK: Input
@@ -175,7 +199,7 @@ struct CardView: View {
             }
             Spacer()
             Button {
-                model.submit(mode: mode)
+                model.submit(mode: mode, language: language)
             } label: {
                 HStack(spacing: 6) {
                     Image(systemName: mode.icon)
@@ -185,7 +209,7 @@ struct CardView: View {
                 .padding(.horizontal, 6)
             }
             .accessibilityLabel(mode.actionLabel)
-            .accessibilityHint("\(mode.rawValue). Shortcut Command Return")
+            .accessibilityHint("\(mode.title(language: language)). Shortcut Command Return")
             .keyboardShortcut(.return, modifiers: .command)
             .buttonStyle(.borderedProminent)
             .controlSize(.large)

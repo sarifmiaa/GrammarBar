@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ModeChip: View {
     let mode: Mode
+    let language: String
     let isSelected: Bool
     let action: () -> Void
     @State private var hovering = false
@@ -11,7 +12,9 @@ struct ModeChip: View {
             VStack(spacing: 4) {
                 Image(systemName: mode.icon)
                     .font(.system(size: 15, weight: isSelected ? .semibold : .regular))
-                Text(mode.shortLabel)
+                Text(mode.shortLabel(language: language))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
                     .font(.system(size: 11, weight: isSelected ? .semibold : .regular))
             }
             .frame(maxWidth: .infinity)
@@ -30,9 +33,9 @@ struct ModeChip: View {
         }
         .buttonStyle(.plain)
         .onHover { hovering = $0 }
-        .help("\(mode.rawValue) (⌘\(String(mode.shortcut.character)))")
+        .help("\(mode.title(language: language)) (⌘\(String(mode.shortcut.character)))")
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(mode.rawValue)
+        .accessibilityLabel(mode.title(language: language))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
         .accessibilityHint("Shortcut Command \(String(mode.shortcut.character))")
     }

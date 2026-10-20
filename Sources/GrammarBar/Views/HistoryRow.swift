@@ -39,7 +39,7 @@ struct HistoryRow: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
                             .lineLimit(1)
-                        Text("\(entry.modeValue.shortLabel) · \(relativeDate)")
+                        Text("\(entry.shortLabel) · \(relativeDate)")
                             .font(.caption2)
                             .foregroundColor(.secondary)
                     }
@@ -50,7 +50,7 @@ struct HistoryRow: View {
             .buttonStyle(.plain)
             .help("Click to restore")
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel("\(entry.modeValue.rawValue), \(relativeDate): \(entry.output)")
+            .accessibilityLabel("\(entry.title), \(relativeDate): \(entry.output)")
             .accessibilityHint("Restores this result into the editor")
             .accessibilityAction(named: "Copy result") { copy() }
             .accessibilityAction(named: "Delete") { onDelete() }
