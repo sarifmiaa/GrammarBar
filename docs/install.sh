@@ -2,7 +2,7 @@
 #
 # GrammarBar installer — https://github.com/sarifmiaa/GrammarBar
 #
-#   curl -fsSL https://sarifmiaa.github.io/GrammarBar/install.sh | bash
+#   curl -fsSL https://grammarbar.sarifmia.xyz/install.sh | bash
 #
 # Options (pass after `bash -s --`):
 #   --uninstall   remove GrammarBar
@@ -142,7 +142,7 @@ install() {
   fi
   say ""
   say "${DIM}Start at login: System Settings → General → Login Items & Extensions → +${RESET}"
-  say "${DIM}Update: run this installer again · Uninstall: curl -fsSL https://sarifmiaa.github.io/GrammarBar/install.sh | bash -s -- --uninstall${RESET}"
+  say "${DIM}Update: run this installer again · Uninstall: curl -fsSL https://grammarbar.sarifmia.xyz/install.sh | bash -s -- --uninstall${RESET}"
 }
 
 main() {
