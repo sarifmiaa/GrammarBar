@@ -41,6 +41,19 @@ docs: document the timeout setting
 
 Common types: `feat`, `fix`, `refactor`, `perf`, `docs`, `build`, `ci`, `chore`.
 
+## Releasing
+
+1. Tag the release — the [Release workflow](.github/workflows/release.yml) builds the app and publishes
+   `GrammarBar.zip` plus its checksum to GitHub Releases:
+   ```bash
+   git tag -a v1.1.0 -m "GrammarBar 1.1.0" && git push origin v1.1.0
+   ```
+2. Update the cask in [sarifmiaa/homebrew-tap](https://github.com/sarifmiaa/homebrew-tap):
+   ```bash
+   brew bump-cask-pr --version 1.1.0 sarifmiaa/tap/grammarbar
+   ```
+   or edit `version` and `sha256` in `Casks/grammarbar.rb` using `GrammarBar.zip.sha256` from the release.
+
 ## Reporting bugs
 
 Please open an issue with your macOS version, how Claude Code is installed (`which claude`, `claude --version`),
