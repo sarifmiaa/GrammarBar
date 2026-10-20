@@ -43,16 +43,21 @@ Common types: `feat`, `fix`, `refactor`, `perf`, `docs`, `build`, `ci`, `chore`.
 
 ## Releasing
 
-1. Tag the release — the [Release workflow](.github/workflows/release.yml) builds the app and publishes
-   `GrammarBar.zip` plus its checksum to GitHub Releases:
-   ```bash
-   git tag -a v1.1.0 -m "GrammarBar 1.1.0" && git push origin v1.1.0
-   ```
-2. Update the cask in [sarifmiaa/homebrew-tap](https://github.com/sarifmiaa/homebrew-tap):
-   ```bash
-   brew bump-cask-pr --version 1.1.0 sarifmiaa/tap/grammarbar
-   ```
-   or edit `version` and `sha256` in `Casks/grammarbar.rb` using `GrammarBar.zip.sha256` from the release.
+Tag the release and push the tag:
+
+```bash
+git tag -a v1.1.0 -m "GrammarBar 1.1.0" && git push origin v1.1.0
+```
+
+The [Release workflow](.github/workflows/release.yml) then:
+
+1. builds the app and publishes `GrammarBar.zip` plus its checksum to GitHub Releases;
+2. updates `version` and `sha256` in [sarifmiaa/homebrew-tap](https://github.com/sarifmiaa/homebrew-tap),
+   so `brew upgrade --cask grammarbar` picks up the new version.
+
+Step 2 needs a `HOMEBREW_TAP_TOKEN` repository secret: a fine-grained personal access token limited to the
+`homebrew-tap` repository with **Contents: Read and write**. Without it (and for pre-release tags such as `v1.1.0-beta.1`)
+the step is skipped and the cask can be bumped manually with `brew bump-cask-pr --version 1.1.0 sarifmiaa/tap/grammarbar`.
 
 ## Reporting bugs
 
