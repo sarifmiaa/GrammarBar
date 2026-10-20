@@ -306,7 +306,7 @@
   table.keys tr:last-child td { border-bottom: 0; }
   table.keys th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-3); }
 
-  .install-grid { display: grid; gap: 18px; grid-template-columns: repeat(3, 1fr); }
+  .install-grid { display: grid; gap: 18px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   @media (max-width: 1000px) { .install-grid { grid-template-columns: 1fr; } }
   .install-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; }
   .install-card h3 { margin: 0 0 4px; font-size: 19px; }
@@ -315,6 +315,7 @@
   pre.code {
     margin: 0; background: var(--code-bg); color: var(--code-text); border-radius: 12px; padding: 16px 18px;
     font: 13.5px/1.7 ui-monospace, "SF Mono", Menlo, monospace; overflow-x: auto;
+    white-space: pre-wrap; overflow-wrap: anywhere;
   }
   .reqs { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
   .reqs span { font-size: 14px; color: var(--text-2); background: var(--surface); border: 1px solid var(--border); padding: 7px 14px; border-radius: 999px; }
