@@ -2,8 +2,12 @@
 #
 # Builds GrammarBar.app from the Swift sources — no Xcode project required.
 #
-#   ./build.sh              universal binary (Apple Silicon + Intel)
+#   ./build.sh              universal binary (Apple Silicon + Intel), ad-hoc signed
 #   ARCHS=arm64 ./build.sh  single architecture (faster)
+#
+# Signing (optional):
+#   SIGN_IDENTITY="GrammarBar Self-Signed Code Signing" ./build.sh
+#   SIGN_KEYCHAIN=/path/to/keychain   keychain holding that identity (default: search list)
 #
 set -euo pipefail
 
@@ -14,6 +18,8 @@ BUNDLE_ID="local.grammarbar"
 VERSION="${VERSION:-1.0.0}"
 MIN_MACOS="13.0"
 ARCHS="${ARCHS:-arm64 x86_64}"
+SIGN_IDENTITY="${SIGN_IDENTITY:--}"
+SIGN_KEYCHAIN="${SIGN_KEYCHAIN:-}"
 
 APP="$APP_NAME.app"
 BIN_DIR="$APP/Contents/MacOS"
@@ -66,7 +72,14 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 </plist>
 PLIST
 
-codesign --force --sign - "$APP"
+CODESIGN_ARGS=(--force --sign "$SIGN_IDENTITY" --timestamp=none)
+[ -n "$SIGN_KEYCHAIN" ] && CODESIGN_ARGS+=(--keychain "$SIGN_KEYCHAIN")
+codesign "${CODESIGN_ARGS[@]}" "$APP"
+if [ "$SIGN_IDENTITY" = "-" ]; then
+  echo "  signed ad-hoc"
+else
+  echo "  signed with \"$SIGN_IDENTITY\""
+fi
 
 echo
 echo "✓ Built $(pwd)/$APP"
