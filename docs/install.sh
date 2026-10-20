@@ -22,6 +22,8 @@ APP="GrammarBar.app"
 BUNDLE_ID="local.grammarbar"
 # Every release is signed with the project's self-signed certificate; this is its fingerprint.
 CERT_ROOT='certificate root = H"1bd487de5e740619d23adf616a675eff9b27a1c3"'
+TMP_DIR=""
+trap 'if [ -n "$TMP_DIR" ]; then rm -rf "$TMP_DIR"; fi' EXIT
 
 if [ -t 1 ]; then
   BOLD=$'\033[1m'; DIM=$'\033[2m'; RED=$'\033[31m'; GREEN=$'\033[32m'; YELLOW=$'\033[33m'; RESET=$'\033[0m'
@@ -96,9 +98,8 @@ install() {
   fi
 
   local base="https://github.com/$REPO/releases/download/$tag"
-  local tmp
-  tmp="$(mktemp -d -t grammarbar)"
-  trap 'rm -rf "$tmp"' EXIT
+  TMP_DIR="$(mktemp -d -t grammarbar)"
+  local tmp="$TMP_DIR"
 
   step "Downloading GrammarBar ${tag#v}"
   curl -fL --progress-bar -o "$tmp/GrammarBar.zip" "$base/GrammarBar.zip" || die "Download failed for $tag."
