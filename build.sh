@@ -23,6 +23,7 @@ SIGN_KEYCHAIN="${SIGN_KEYCHAIN:-}"
 
 APP="$APP_NAME.app"
 BIN_DIR="$APP/Contents/MacOS"
+RES_DIR="$APP/Contents/Resources"
 BUILD_DIR=".build"
 
 SOURCES=()
@@ -30,7 +31,7 @@ while IFS= read -r file; do SOURCES+=("$file"); done < <(find Sources -name '*.s
 
 echo "→ Building $APP $VERSION ($ARCHS) from ${#SOURCES[@]} source files"
 rm -rf "$APP" "$BUILD_DIR"
-mkdir -p "$BIN_DIR" "$BUILD_DIR"
+mkdir -p "$BIN_DIR" "$RES_DIR" "$BUILD_DIR"
 
 SLICES=()
 for arch in $ARCHS; do
@@ -42,6 +43,9 @@ for arch in $ARCHS; do
   SLICES+=("$BUILD_DIR/$APP_NAME-$arch")
 done
 lipo -create "${SLICES[@]}" -output "$BIN_DIR/$APP_NAME"
+
+# App icon (regenerate with: swift scripts/make-icon.swift)
+cp Resources/AppIcon.icns "$RES_DIR/AppIcon.icns"
 
 cat > "$APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -56,6 +60,8 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <string>$BUNDLE_ID</string>
   <key>CFBundleExecutable</key>
   <string>$APP_NAME</string>
+  <key>CFBundleIconFile</key>
+  <string>AppIcon</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>
