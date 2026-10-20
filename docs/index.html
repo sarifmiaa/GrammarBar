@@ -306,8 +306,8 @@
   table.keys tr:last-child td { border-bottom: 0; }
   table.keys th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-3); }
 
-  .install-grid { display: grid; gap: 18px; grid-template-columns: 1fr 1fr; }
-  @media (max-width: 860px) { .install-grid { grid-template-columns: 1fr; } }
+  .install-grid { display: grid; gap: 18px; grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 1000px) { .install-grid { grid-template-columns: 1fr; } }
   .install-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; }
   .install-card h3 { margin: 0 0 4px; font-size: 19px; }
   .install-card p { margin: 0 0 16px; color: var(--text-2); font-size: 15px; }
@@ -394,10 +394,7 @@
           <code><span class="prompt">$ </span><span id="brew-cmd">brew install --cask sarifmiaa/tap/grammarbar</span></code>
           <button class="copy-btn" type="button" data-copy="brew install --cask sarifmiaa/tap/grammarbar">Copy</button>
         </div>
-        <a class="btn" href="https://github.com/sarifmiaa/GrammarBar/releases/latest">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
-          Download
-        </a>
+        <a class="btn" href="#install">Other ways to install</a>
       </div>
       <p class="meta">Requires <a href="https://docs.claude.com/en/docs/claude-code/overview">Claude Code</a> · Apple Silicon &amp; Intel · MIT licensed</p>
 
@@ -575,13 +572,19 @@
       <div class="center">
         <div class="kicker">Install</div>
         <h2>Up and running in a minute.</h2>
-        <p class="section-lede">Install Claude Code and run <code>claude</code> once to sign in, then pick one:</p>
+        <p class="section-lede">Install Claude Code and run <code>claude</code> once to sign in, then pick one. Both installers verify the download and skip the Gatekeeper prompt.</p>
       </div>
       <div class="install-grid">
         <div class="install-card">
           <h3>Homebrew <span class="tag">Recommended</span></h3>
-          <p>Installs to /Applications and updates with <code>brew upgrade</code>.</p>
+          <p>Installs to /Applications and updates automatically with <code>brew upgrade</code>.</p>
 <pre class="code">brew install --cask sarifmiaa/tap/grammarbar</pre>
+        </div>
+        <div class="install-card">
+          <h3>Install script</h3>
+          <p>No Homebrew? Checks the SHA-256 and code signature, then installs to /Applications. Run it again to update.</p>
+<pre class="code">curl -fsSL https://sarifmiaa.github.io/GrammarBar/install.sh | bash</pre>
+          <p style="margin:12px 0 0;font-size:13.5px"><a href="install.sh">Read the script</a> before running it.</p>
         </div>
         <div class="install-card">
           <h3>Build from source</h3>
@@ -611,7 +614,8 @@ mv GrammarBar.app /Applications/</pre>
         <details><summary>Which model does it use?</summary><p>Claude Haiku by default, for speed. Change <code>claudeModel</code> in <code>Config.swift</code> to <code>"sonnet"</code> and rebuild for higher quality.</p></details>
         <details><summary>Can I add my own languages or modes?</summary><p>Yes — each mode is a single case with its instruction in <code>Mode.swift</code>. Adding "Translate to Spanish" is a few lines.</p></details>
         <details><summary>It says “claude CLI not found”.</summary><p>Install Claude Code and run <code>claude</code> once in Terminal to log in. GrammarBar checks the common install locations and your login shell's PATH.</p></details>
-        <details><summary>macOS says the app can't be opened.</summary><p>GrammarBar is ad-hoc signed rather than notarized. The Homebrew cask handles this for you; for a manual download, run <code>xattr -dr com.apple.quarantine GrammarBar.app</code> or allow it in System Settings → Privacy &amp; Security.</p></details>
+        <details><summary>Why isn't there a download button?</summary><p>GrammarBar is signed with its own certificate rather than an Apple-notarized one, so a zip downloaded in the browser triggers a Gatekeeper warning. Homebrew and the install script verify the download and install it without that prompt, so they're the only supported ways to install.</p></details>
+        <details><summary>How do I update or uninstall?</summary><p>Homebrew: <code>brew upgrade --cask grammarbar</code> / <code>brew uninstall --cask grammarbar</code>. Install script: run it again to update, or add <code>-s -- --uninstall</code> after <code>bash</code> to remove it.</p></details>
         <details><summary>How do I start it at login?</summary><p>System Settings → General → Login Items &amp; Extensions → Open at Login → <b>+</b>, then choose GrammarBar from /Applications.</p></details>
       </div>
     </div>
@@ -638,7 +642,7 @@ mv GrammarBar.app /Applications/</pre>
     <a class="brand" href="#top"><svg class="app-icon" aria-hidden="true"><use href="#i-app"/></svg>GrammarBar</a>
     <div class="links">
       <a href="https://github.com/sarifmiaa/GrammarBar">GitHub</a>
-      <a href="https://github.com/sarifmiaa/GrammarBar/releases">Releases</a>
+      <a href="https://github.com/sarifmiaa/GrammarBar/releases">Changelog</a>
       <a href="https://github.com/sarifmiaa/GrammarBar/issues">Issues</a>
       <a href="https://github.com/sarifmiaa/GrammarBar/blob/main/LICENSE">MIT License</a>
     </div>
