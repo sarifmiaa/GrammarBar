@@ -1,0 +1,32 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Swift version
+        run: swiftc --version
+
+      - name: Build app bundle
+        run: ./build.sh
+
+      - name: Verify bundle
+        run: |
+          lipo -info GrammarBar.app/Contents/MacOS/GrammarBar
+          codesign --verify --verbose GrammarBar.app
+          plutil -lint GrammarBar.app/Contents/Info.plist
+
+      - name: Package
+        run: ditto -c -k --keepParent GrammarBar.app GrammarBar.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GrammarBar
+          path: GrammarBar.zip
