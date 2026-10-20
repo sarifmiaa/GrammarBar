@@ -33,8 +33,10 @@ jobs:
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
           security import "$RUNNER_TEMP/signing.p12" -k "$KEYCHAIN" -P "$P12_PASSWORD" -T /usr/bin/codesign -f pkcs12
           security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN" >/dev/null
+          # codesign only finds the (untrusted) identity when the keychain is in the user search list.
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"')
           rm "$RUNNER_TEMP/signing.p12"
-          echo "SIGN_KEYCHAIN=$KEYCHAIN" >> "$GITHUB_ENV"
+          echo "SIGNING_KEYCHAIN_PATH=$KEYCHAIN" >> "$GITHUB_ENV"
           echo "SIGN_IDENTITY=GrammarBar Self-Signed Code Signing" >> "$GITHUB_ENV"
 
       - name: Build app bundle
@@ -103,4 +105,4 @@ jobs:
       - name: Remove signing keychain
         if: always()
         run: |
-          if [ -n "${SIGN_KEYCHAIN:-}" ]; then security delete-keychain "$SIGN_KEYCHAIN" || true; fi
+          if [ -n "${SIGNING_KEYCHAIN_PATH:-}" ]; then security delete-keychain "$SIGNING_KEYCHAIN_PATH" || true; fi
