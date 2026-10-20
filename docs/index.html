@@ -3,15 +3,65 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GrammarBar — Fix, polish and translate from your Mac's menu bar</title>
-<meta name="description" content="GrammarBar is a free, open-source macOS menu bar app that fixes grammar, polishes and translates text with Claude Code. Paste, press ⌘↩, and the result is on your clipboard.">
+<title>GrammarBar — Free AI Grammar Checker &amp; Translator for the Mac Menu Bar</title>
+<meta name="description" content="Fix grammar, polish wording and translate into 34 languages from your Mac's menu bar. Press ⌃⌥G in Slack, Teams or Mail to pull text in. Free, open source, powered by Claude Code.">
+<meta name="author" content="Sarif Mia">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="https://grammarbar.sarifmia.xyz/">
 <meta name="theme-color" content="#0a84ff">
 <meta property="og:type" content="website">
+<meta property="og:site_name" content="GrammarBar">
+<meta property="og:locale" content="en_US">
 <meta property="og:title" content="GrammarBar — Fix, polish and translate from your Mac's menu bar">
-<meta property="og:description" content="Free, open-source macOS menu bar app powered by Claude Code. Paste, press ⌘↩, done.">
+<meta property="og:description" content="Free, open-source macOS menu bar app powered by Claude Code. Press ⌃⌥G in any app or paste, then ⌘↩ — the result is on your clipboard.">
 <meta property="og:url" content="https://grammarbar.sarifmia.xyz/">
-<meta name="twitter:card" content="summary">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a84ff'/%3E%3Cg stroke='white' stroke-width='5' stroke-linecap='round'%3E%3Cpath d='M14 20h26M14 31h20M14 42h14'/%3E%3C/g%3E%3Ccircle cx='45' cy='43' r='11' fill='white'/%3E%3Cpath d='M40 43l4 4 6-8' stroke='%230a84ff' stroke-width='4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta property="og:image" content="https://grammarbar.sarifmia.xyz/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="GrammarBar card fixing a sentence, next to the headline “Fix, polish &amp; translate from your menu bar.”">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="GrammarBar — Fix, polish and translate from your Mac's menu bar">
+<meta name="twitter:description" content="Free, open-source macOS menu bar app powered by Claude Code. ⌃⌥G from any app, ⌘↩ to fix.">
+<meta name="twitter:image" content="https://grammarbar.sarifmia.xyz/og-image.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="256x256" href="icon-256.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "GrammarBar",
+      "url": "https://grammarbar.sarifmia.xyz/",
+      "description": "A free, open-source macOS menu bar app that fixes grammar, polishes wording and translates text into 34 languages using Claude Code.",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "macOS 13 or later",
+      "softwareVersion": "1.2.0",
+      "image": "https://grammarbar.sarifmia.xyz/icon-512.png",
+      "screenshot": "https://grammarbar.sarifmia.xyz/og-image.png",
+      "downloadUrl": "https://github.com/sarifmiaa/GrammarBar/releases/latest",
+      "license": "https://opensource.org/licenses/MIT",
+      "isAccessibleForFree": true,
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "author": { "@type": "Person", "name": "Sarif Mia", "url": "https://github.com/sarifmiaa" },
+      "featureList": [
+        "Fix grammar with minimal edits",
+        "Polish text so it sounds natural",
+        "Translate to English or any of 34 languages",
+        "Capture text from any app with Control-Option-G",
+        "Searchable history of the last 100 results",
+        "Results copied to the clipboard automatically"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "name": "GrammarBar",
+      "url": "https://grammarbar.sarifmia.xyz/"
+    }
+  ]
+}
+</script>
 <style>
   :root {
     --bg: #fbfbfd;
@@ -99,7 +149,29 @@
   .nav .gh { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--text); }
   @media (max-width: 760px) { .nav nav { display: none; } .nav .gh { margin-left: auto; } }
 
-  .app-icon { width: 28px; height: 28px; flex: none; }
+  .app-icon { width: 32px; height: 32px; flex: none; }
+
+  /* ---------- Capture ---------- */
+  #capture { border-top: 1px solid var(--border); }
+  .cap-visual {
+    background: var(--desktop); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow);
+    padding: 26px; display: grid; gap: 18px;
+  }
+  .chat { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; font-size: 14px; }
+  .chat .ch { padding: 10px 14px; border-bottom: 1px solid var(--border); font-weight: 650; font-size: 13px; color: var(--text-2); }
+  .chat .msg { padding: 12px 14px; color: var(--text-2); }
+  .chat .msg b { color: var(--text); font-size: 13px; display: block; }
+  .compose { margin: 0 14px 14px; border: 1.5px solid var(--accent-strong); border-radius: 10px; padding: 10px 12px; color: var(--text); }
+  .compose .caret { display: inline-block; width: 1.5px; height: 1.1em; background: var(--accent-strong); vertical-align: -3px; margin-left: 1px; }
+  .press { display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--text-2); font-size: 14px; }
+  .press kbd { font-size: 15px; padding: 7px 11px; }
+  .press .arrow { font-size: 20px; color: var(--accent); }
+  .mini-card { background: var(--card-glass); border: 1px solid var(--border); border-radius: 14px; padding: 12px; font-size: 13px; box-shadow: 0 12px 40px rgba(0,0,0,.18); }
+  .mini-card .mh { display: flex; align-items: center; gap: 8px; font-weight: 650; margin-bottom: 8px; }
+  .mini-card .mh img { width: 22px; height: 22px; }
+  .mini-card .mh span { margin-left: auto; font-weight: 500; color: var(--text-3); font-size: 11px; }
+  .mini-card .mi { background: var(--surface); border: 1.5px solid var(--accent-strong); border-radius: 8px; padding: 8px 10px; }
+  .note { margin-top: 24px; font-size: 14.5px; color: var(--text-3); }
 
   /* ---------- Hero ---------- */
   .hero { padding: 72px 0 40px; text-align: center; }
@@ -351,7 +423,6 @@
 
 <!-- SVG symbols (approximations of the SF Symbols used in the app) -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="i-app" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0a84ff"/><g stroke="#fff" stroke-width="5" stroke-linecap="round"><path d="M14 20h26M14 31h20M14 42h14"/></g><circle cx="45" cy="43" r="11" fill="#fff"/><path d="M40 43l4 4 6-8" stroke="#0a84ff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-badge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h11M4 11h8M4 16h5"/><circle cx="17" cy="16" r="5"/><path d="M14.8 16l1.6 1.6 2.8-3.2"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9"/></symbol>
   <symbol id="i-wand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20L15 9"/><path d="M13.5 6.5l4 4"/><path d="M18 3v3M16.5 4.5h3M21 9v2M20 10h2M10 3v2M9 4h2"/></symbol>
@@ -371,10 +442,11 @@
 <header class="nav">
   <div class="wrap">
     <a class="brand" href="#top" aria-label="GrammarBar home">
-      <svg class="app-icon" aria-hidden="true"><use href="#i-app"/></svg>
+      <img class="app-icon" src="icon-256.png" alt="" width="32" height="32">
       GrammarBar
     </a>
     <nav aria-label="Sections">
+      <a href="#capture">Capture</a>
       <a href="#features">Features</a>
       <a href="#modes">Modes</a>
       <a href="#how">How it works</a>
@@ -392,9 +464,9 @@
   <!-- ================= HERO ================= -->
   <div class="hero" id="top">
     <div class="wrap">
-      <span class="eyebrow">Free &amp; open source · macOS 13+</span>
+      <a class="eyebrow" href="#capture">New in 1.2 · Pull text in from any app with ⌃⌥G →</a>
       <h1>Better writing, <span class="grad">one click</span> away.</h1>
-      <p class="lede">GrammarBar lives in your menu bar and fixes, polishes or translates any text with Claude. Paste, press <kbd>⌘</kbd><kbd>↩</kbd> — it's already on your clipboard.</p>
+      <p class="lede">GrammarBar is a free grammar checker and translator that lives in your Mac's menu bar. Paste text — or press <kbd>⌃</kbd><kbd>⌥</kbd><kbd>G</kbd> in any app — then <kbd>⌘</kbd><kbd>↩</kbd>. The result is already on your clipboard.</p>
 
       <div class="cta">
         <div class="install" role="group" aria-label="Homebrew install command">
@@ -403,7 +475,7 @@
         </div>
         <a class="btn" href="#install">Other ways to install</a>
       </div>
-      <p class="meta">Requires <a href="https://docs.claude.com/en/docs/claude-code/overview">Claude Code</a> · Apple Silicon &amp; Intel · MIT licensed</p>
+      <p class="meta">Free &amp; open source · macOS 13+ · Apple Silicon &amp; Intel · Requires <a href="https://docs.claude.com/en/docs/claude-code/overview">Claude Code</a></p>
 
       <!-- Interactive replica of the app -->
       <div class="stage" aria-label="Interactive demo of the GrammarBar card">
@@ -423,7 +495,7 @@
 
           <div class="card" role="region" aria-label="GrammarBar card (demo)">
             <div class="c-head">
-              <svg width="28" height="28" aria-hidden="true"><use href="#i-app"/></svg>
+              <img src="icon-256.png" alt="" width="30" height="30">
               <div>
                 <div class="title">GrammarBar</div>
                 <div class="sub" id="demo-sub">Fix grammar</div>
@@ -474,12 +546,41 @@
     </div>
   </div>
 
+  <!-- ================= CAPTURE ================= -->
+  <section id="capture">
+    <div class="wrap split">
+      <div>
+        <div class="kicker">New in 1.2 · Capture from anywhere</div>
+        <h2>Fix text where you write it.</h2>
+        <p class="section-lede" style="margin-bottom:28px">Writing in Teams, Slack, Mail or a browser? Leave your cursor in the field and press <kbd>⌃</kbd><kbd>⌥</kbd><kbd>G</kbd>. GrammarBar copies the whole field into the card, so you only have to pick a mode and press <kbd>⌘</kbd><kbd>↩</kbd>.</p>
+        <ul class="list">
+          <li><svg><use href="#i-ok"/></svg><span><b>Works in any app</b> with a text field. No plugins or browser extensions.</span></li>
+          <li><svg><use href="#i-ok"/></svg><span><b>Takes the whole field.</b> GrammarBar presses <kbd>⌘</kbd><kbd>A</kbd> <kbd>⌘</kbd><kbd>C</kbd> for you. To fix only part of a message, copy that part and paste it into the card.</span></li>
+          <li><svg><use href="#i-ok"/></svg><span><b>Only when you ask.</b> It sees nothing until you press the shortcut. It never reads your screen or other apps by itself.</span></li>
+        </ul>
+        <p class="note">Needs Accessibility permission, because macOS requires it for sending keystrokes. On the first press, macOS asks you to allow it.</p>
+      </div>
+      <div class="cap-visual" aria-hidden="true">
+        <div class="chat">
+          <div class="ch"># design-review</div>
+          <div class="msg"><b>Anna</b>Any update on the new onboarding flow?</div>
+          <div class="compose">i have finish the most part, will share it tommorow morning<span class="caret"></span></div>
+        </div>
+        <div class="press"><kbd>⌃</kbd><kbd>⌥</kbd><kbd>G</kbd><span class="arrow">↓</span><span>opens the card with the text inside</span></div>
+        <div class="mini-card">
+          <div class="mh"><img src="icon-256.png" alt="" width="22" height="22" loading="lazy">GrammarBar<span>Fix grammar · ⌘↩</span></div>
+          <div class="mi">i have finish the most part, will share it tommorow morning</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= FEATURES ================= -->
   <section id="features" class="alt">
     <div class="wrap">
       <div class="kicker">Features</div>
       <h2>Small app. No friction.</h2>
-      <p class="section-lede">Everything happens in a single card under the menu bar icon. No windows to manage, no copy-paste between tabs, no extra accounts.</p>
+      <p class="section-lede">Everything happens in a single card under the menu bar icon. Open it with a click, or with <kbd>⌃</kbd><kbd>⌥</kbd><kbd>G</kbd> from any app. No windows to manage, no switching between tabs, no extra accounts.</p>
       <div class="grid">
         <div class="feature"><div class="ic"><svg><use href="#i-clip"/></svg></div><h3>Clipboard-first</h3><p>Every result is copied automatically. Paste it straight back into Slack, Mail or your editor.</p></div>
         <div class="feature"><div class="ic"><svg><use href="#i-pin"/></svg></div><h3>Stays open</h3><p>The card doesn't vanish when you click elsewhere, so you can grab text from another app and come back.</p></div>
@@ -538,7 +639,7 @@
       <h2>Your Claude Code, one hop away.</h2>
       <p class="section-lede">GrammarBar doesn't need an API key. It calls the Claude Code CLI you're already signed in to, headlessly, in the background.</p>
       <div class="steps">
-        <div class="step"><h3>Paste or type</h3><p>Click the menu bar icon. The input is focused the moment the card opens.</p></div>
+        <div class="step"><h3>Paste or capture</h3><p>Click the menu bar icon and paste. Or press <kbd>⌃</kbd><kbd>⌥</kbd><kbd>G</kbd> in any app to bring the text along.</p></div>
         <div class="step"><h3>Press <kbd>⌘</kbd><kbd>↩</kbd></h3><p>Your text is piped to <code>claude -p</code> over stdin with a mode-specific instruction.</p></div>
         <div class="step"><h3>Paste the result</h3><p>The answer appears in the card and is already on your clipboard, and saved to history.</p></div>
       </div>
@@ -563,6 +664,7 @@
         <ul class="list">
           <li><svg><use href="#i-ok"/></svg><span><b>Your session, your data.</b> Text goes to Anthropic through your own Claude Code login — exactly as if you typed it into <code>claude</code>.</span></li>
           <li><svg><use href="#i-ok"/></svg><span><b>Nothing in between.</b> GrammarBar has no backend, analytics or telemetry.</span></li>
+          <li><svg><use href="#i-ok"/></svg><span><b>Capture only on request.</b> Accessibility permission is used only to press <kbd>⌘</kbd><kbd>A</kbd> <kbd>⌘</kbd><kbd>C</kbd> when you press <kbd>⌃</kbd><kbd>⌥</kbd><kbd>G</kbd>. GrammarBar never reads other apps on its own.</span></li>
           <li><svg><use href="#i-ok"/></svg><span><b>Local history.</b> Stored only on your Mac. Clear it in the app, or remove everything with <code>brew uninstall --zap</code>.</span></li>
           <li><svg><use href="#i-ok"/></svg><span><b>Open source.</b> Every line is on GitHub under the MIT license.</span></li>
         </ul>
@@ -573,6 +675,7 @@
         <table class="keys">
           <thead><tr><th scope="col">Shortcut</th><th scope="col">Action</th></tr></thead>
           <tbody>
+            <tr><td><kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>G</kbd></td><td>Capture the focused text field from any app</td></tr>
             <tr><td><kbd>⌘</kbd> <kbd>↩</kbd></td><td>Submit</td></tr>
             <tr><td><kbd>⌘</kbd> <kbd>1</kbd> … <kbd>4</kbd></td><td>Switch mode</td></tr>
             <tr><td><kbd>Esc</kbd></td><td>Leave history, then close the card</td></tr>
@@ -588,7 +691,7 @@
       <div class="center">
         <div class="kicker">Install</div>
         <h2>Up and running in a minute.</h2>
-        <p class="section-lede">Install Claude Code and run <code>claude</code> once to sign in, then pick one. Both installers verify the download and skip the Gatekeeper prompt.</p>
+        <p class="section-lede">Install Claude Code and run <code>claude</code> once to sign in, then pick one. Both installers verify the download and skip the Gatekeeper prompt. If Claude Code is missing, GrammarBar tells you on first launch and links to the install guide.</p>
       </div>
       <div class="install-grid">
         <div class="install-card">
@@ -630,7 +733,10 @@ mv GrammarBar.app /Applications/</pre>
         <details><summary>Which model does it use?</summary><p>Claude Haiku by default, for speed. Change <code>claudeModel</code> in <code>Config.swift</code> to <code>"sonnet"</code> and rebuild for higher quality.</p></details>
         <details><summary>Which languages can it translate to?</summary><p>English has its own mode, and <em>Translate to …</em> covers 34 more — German, Spanish, French, Japanese, Hindi, Arabic, Chinese and others — picked from a menu in the card. It matches formal or informal address (du/Sie, tu/vous, tú/usted) to your original.</p></details>
         <details><summary>Can I add my own languages or modes?</summary><p>Yes. A language is one line in <code>Language.swift</code>; a new mode is a single case with its instruction in <code>Mode.swift</code>.</p></details>
-        <details><summary>It says “claude CLI not found”.</summary><p>Install Claude Code and run <code>claude</code> once in Terminal to log in. GrammarBar checks the common install locations and your login shell's PATH.</p></details>
+        <details><summary>Does it work in Teams, Slack, Mail and the browser?</summary><p>Yes. Leave your cursor in the text field and press <kbd>⌃</kbd><kbd>⌥</kbd><kbd>G</kbd>. GrammarBar copies the field's contents into the card. Paste the result back with <kbd>⌘</kbd><kbd>V</kbd>. It works in any app that supports Select All and Copy.</p></details>
+        <details><summary>Why does it ask for Accessibility permission?</summary><p>Only the <kbd>⌃</kbd><kbd>⌥</kbd><kbd>G</kbd> shortcut needs it, because macOS requires that permission for sending keystrokes to other apps. GrammarBar uses it to press <kbd>⌘</kbd><kbd>A</kbd> <kbd>⌘</kbd><kbd>C</kbd> when you press the shortcut, and for nothing else. Without it, everything else still works.</p></details>
+        <details><summary>⌃⌥G does nothing.</summary><p>Turn GrammarBar on in System Settings → Privacy &amp; Security → Accessibility. If you built the app from source and it stopped working after a rebuild, remove GrammarBar from that list and add it again.</p></details>
+        <details><summary>It says “claude CLI not found”.</summary><p>Install Claude Code and run <code>claude</code> once in Terminal to log in. GrammarBar checks for it on first launch, and offers to open the install guide if it isn't found. It looks in the usual install locations and in your login shell's PATH.</p></details>
         <details><summary>Why isn't there a download button?</summary><p>GrammarBar is signed with its own certificate rather than an Apple-notarized one, so a zip downloaded in the browser triggers a Gatekeeper warning. Homebrew and the install script verify the download and install it without that prompt, so they're the only supported ways to install.</p></details>
         <details><summary>How do I update or uninstall?</summary><p>Homebrew: <code>brew upgrade --cask grammarbar</code> / <code>brew uninstall --cask grammarbar</code>. Install script: run it again to update, or add <code>-s -- --uninstall</code> after <code>bash</code> to remove it.</p></details>
         <details><summary>How do I start it at login?</summary><p>System Settings → General → Login Items &amp; Extensions → Open at Login → <b>+</b>, then choose GrammarBar from /Applications.</p></details>
@@ -640,7 +746,7 @@ mv GrammarBar.app /Applications/</pre>
 
   <section class="alt final">
     <div class="wrap">
-      <svg width="72" height="72" aria-hidden="true"><use href="#i-app"/></svg>
+      <img src="icon-256.png" alt="GrammarBar app icon" width="88" height="88" loading="lazy">
       <h2>Write it once. Send it right.</h2>
       <p class="section-lede" style="margin:0 auto 28px">One command away.</p>
       <div class="cta">
@@ -656,7 +762,7 @@ mv GrammarBar.app /Applications/</pre>
 
 <footer>
   <div class="wrap">
-    <a class="brand" href="#top"><svg class="app-icon" aria-hidden="true"><use href="#i-app"/></svg>GrammarBar</a>
+    <a class="brand" href="#top"><img class="app-icon" src="icon-256.png" alt="" width="32" height="32">GrammarBar</a>
     <div class="links">
       <a href="https://github.com/sarifmiaa/GrammarBar">GitHub</a>
       <a href="https://github.com/sarifmiaa/GrammarBar/releases">Changelog</a>
