@@ -34,7 +34,7 @@ pkill -x GrammarBar; ./build.sh && open GrammarBar.app
 This project uses [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
-feat(ui): add Spanish translation mode
+feat(modes): add a summarize mode
 fix(runner): handle claude binaries installed via asdf
 docs: document the timeout setting
 ```

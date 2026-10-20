@@ -24,11 +24,11 @@ no API keys to manage: it reuses the Claude Code CLI you are already logged in t
 
 ## Features
 
-- **Four modes** — *Fix grammar*, *Polish / make natural*, *Translate to English*, *Translate to German*. The last mode is remembered.
+- **Four modes** — *Fix grammar*, *Polish / make natural*, *Translate to English*, and *Translate to …* any of 34 languages picked from a menu (German by default). Your last mode and language are remembered.
 - **Clipboard-first** — every result is copied automatically; *Use as input* lets you chain modes (e.g. translate, then polish).
 - **Stays out of the way** — lives only in the menu bar; the card stays open while you copy text from other apps and closes with <kbd>Esc</kbd>.
 - **History** — the last 100 results, searchable, one click to restore, copy or delete.
-- **Faithful output** — prompts tell Claude to change as little as necessary and to keep line breaks, names, links, emojis and tone (including *du/Sie* in German).
+- **Faithful output** — prompts tell Claude to change as little as necessary and to keep line breaks, names, links, emojis and tone — including formal or informal address such as *du/Sie*, *tu/vous* or *tú/usted*.
 - **Never blocks the UI** — Claude runs in a background subprocess with a timeout.
 - **Accessible** — full VoiceOver labels and announcements, keyboard-reachable controls, and support for *Increase contrast* and *Reduce motion*.
 
@@ -89,6 +89,7 @@ so they are the supported ways to install. The certificate's fingerprint is pinn
 
 1. Click the GrammarBar icon (a text block with a checkmark) in the menu bar.
 2. Choose a mode, type or paste text, press <kbd>⌘</kbd><kbd>↩</kbd>.
+   For *Translate to …*, pick the target language from the **Translate to** menu under the mode buttons.
 3. The result appears below the input and is copied to the clipboard.
 
 ### Keyboard shortcuts
@@ -109,7 +110,8 @@ Settings are constants in [`Sources/GrammarBar/Config.swift`](Sources/GrammarBar
 | `requestTimeout` | `120` | Seconds before a request is cancelled. |
 
 The per-mode instructions live in [`Sources/GrammarBar/Models/Mode.swift`](Sources/GrammarBar/Models/Mode.swift) — adding a mode
-(say, *Translate to Spanish*) is a new `case` there.
+(say, *Summarize*) is a new `case` there. The target languages for *Translate to …* are listed in
+[`Sources/GrammarBar/Models/Language.swift`](Sources/GrammarBar/Models/Language.swift); adding one is a single line.
 
 ## How it works
 
@@ -151,6 +153,7 @@ Sources/GrammarBar/
 ├── Config.swift                 # model + timeout
 ├── Models/
 │   ├── Mode.swift               # modes and their Claude instructions
+│   ├── Language.swift           # target languages for "Translate to …"
 │   ├── HistoryEntry.swift
 │   └── GrammarModel.swift       # view model: submit, clipboard, history
 ├── Services/
