@@ -33,3 +33,37 @@ jobs:
           gh release create "$GITHUB_REF_NAME" GrammarBar.zip GrammarBar.zip.sha256 \
             --title "GrammarBar ${GITHUB_REF_NAME}" \
             --generate-notes
+
+      - name: Update Homebrew cask
+        env:
+          TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          TAP_REPO: sarifmiaa/homebrew-tap
+          CASK_FILE: Casks/grammarbar.rb
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          if [ -z "$TAP_TOKEN" ]; then
+            echo "::warning::HOMEBREW_TAP_TOKEN is not set; skipping Homebrew cask update."
+            exit 0
+          fi
+          if [[ "$VERSION" == *-* ]]; then
+            echo "Pre-release $VERSION; skipping Homebrew cask update."
+            exit 0
+          fi
+
+          SHA256="$(cut -d ' ' -f 1 GrammarBar.zip.sha256)"
+          git clone --depth 1 "https://x-access-token:${TAP_TOKEN}@github.com/${TAP_REPO}.git" tap
+          cd tap
+          sed -i '' -E \
+            -e "s/^  version \".*\"$/  version \"${VERSION}\"/" \
+            -e "s/^  sha256 \".*\"$/  sha256 \"${SHA256}\"/" \
+            "$CASK_FILE"
+
+          if git diff --quiet; then
+            echo "Cask already at ${VERSION}."
+            exit 0
+          fi
+          git diff
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore(grammarbar): update to ${VERSION}"
+          git push
