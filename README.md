@@ -154,7 +154,7 @@ claude -p "<mode instruction>" --model haiku --output-format text   # your text 
 
 | Problem | Fix |
 | --- | --- |
-| *"claude CLI not found"* | Install Claude Code and run `claude` once in Terminal to log in. If it lives somewhere unusual, make sure `zsh -lic 'command -v claude'` finds it. |
+| *"claude CLI not found"* | Install Claude Code and run `claude` once in Terminal to log in. If it lives somewhere unusual, make sure `zsh -lic 'command -v claude'` finds it. GrammarBar also checks for this once on first launch and offers to open the install guide if `claude` isn't found. |
 | Requests fail with an auth error | Run `claude` in Terminal and log in again. |
 | Result includes extra commentary | Switch `claudeModel` to `"sonnet"`, or tighten the instruction in `Mode.swift`. |
 | Card does not appear | Check that `GrammarBar` is running (Activity Monitor). Menu bar managers such as Bartender may hide the icon. |
@@ -180,6 +180,7 @@ Sources/GrammarBar/
 │   └── ClaudeRunner.swift       # finds and runs the claude CLI
 ├── Support/
 │   ├── Accessibility.swift      # VoiceOver announcements
+│   ├── ClaudeSetupCheck.swift   # first-launch check: is claude installed?
 │   ├── GlobalHotKey.swift       # Carbon hot key registration (⌃⌥G)
 │   └── SelectionCapture.swift   # simulates ⌘A⌘C to grab the focused field's text from any app
 └── Views/

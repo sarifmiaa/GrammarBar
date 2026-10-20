@@ -42,6 +42,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         captureHotKey = GlobalHotKey(keyCode: UInt32(kVK_ANSI_G), modifiers: UInt32(controlKey | optionKey)) { [weak self] in
             Task { @MainActor in self?.captureSelectionAndShow() }
         }
+
+        ClaudeSetupCheck.runOnce()
     }
 
     private func captureSelectionAndShow() {
