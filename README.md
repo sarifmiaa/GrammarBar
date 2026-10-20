@@ -4,6 +4,8 @@
 
 **Fix, polish and translate text from your Mac's menu bar — powered by [Claude Code](https://claude.com/claude-code).**
 
+[**Website**](https://sarifmiaa.github.io/GrammarBar/) · [Download](https://github.com/sarifmiaa/GrammarBar/releases/latest) · [Homebrew](#homebrew-recommended)
+
 ![macOS 13+](https://img.shields.io/badge/macOS-13%2B-000000?logo=apple&logoColor=white)
 ![Swift](https://img.shields.io/badge/Swift-5.9%2B-F05138?logo=swift&logoColor=white)
 ![SwiftUI](https://img.shields.io/badge/UI-SwiftUI-0A84FF)
