@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GrammarBar — Fix, polish and translate from your Mac's menu bar</title>
+<meta name="description" content="GrammarBar is a free, open-source macOS menu bar app that fixes grammar, polishes and translates text with Claude Code. Paste, press ⌘↩, and the result is on your clipboard.">
+<meta name="theme-color" content="#0a84ff">
+<meta property="og:type" content="website">
+<meta property="og:title" content="GrammarBar — Fix, polish and translate from your Mac's menu bar">
+<meta property="og:description" content="Free, open-source macOS menu bar app powered by Claude Code. Paste, press ⌘↩, done.">
+<meta property="og:url" content="https://sarifmiaa.github.io/GrammarBar/">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a84ff'/%3E%3Cg stroke='white' stroke-width='5' stroke-linecap='round'%3E%3Cpath d='M14 20h26M14 31h20M14 42h14'/%3E%3C/g%3E%3Ccircle cx='45' cy='43' r='11' fill='white'/%3E%3Cpath d='M40 43l4 4 6-8' stroke='%230a84ff' stroke-width='4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #fbfbfd;
+    --bg-alt: #f2f2f7;
+    --surface: #ffffff;
+    --text: #1d1d1f;
+    --text-2: #515154;
+    --text-3: #6e6e73;
+    --border: rgba(0, 0, 0, 0.1);
+    --accent: #0a6cdf;
+    --accent-strong: #0a84ff;
+    --accent-soft: rgba(10, 132, 255, 0.12);
+    --green: #248a3d;
+    --red: #d70015;
+    --shadow: 0 1px 2px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.10);
+    --card-glass: rgba(246, 246, 248, 0.86);
+    --menubar: rgba(255, 255, 255, 0.72);
+    --desktop: radial-gradient(1200px 600px at 20% 0%, #c9dcff 0%, transparent 60%),
+               radial-gradient(900px 500px at 90% 30%, #f6d6ff 0%, transparent 60%),
+               linear-gradient(180deg, #eaf1ff 0%, #f7f2ff 100%);
+    --code-bg: #1d1d1f;
+    --code-text: #f5f5f7;
+    --radius: 18px;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b0b0d;
+      --bg-alt: #141417;
+      --surface: #1c1c1e;
+      --text: #f5f5f7;
+      --text-2: #c7c7cc;
+      --text-3: #a1a1a6;
+      --border: rgba(255, 255, 255, 0.12);
+      --accent: #4ea4ff;
+      --accent-strong: #0a84ff;
+      --accent-soft: rgba(10, 132, 255, 0.2);
+      --green: #32d74b;
+      --red: #ff453a;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 18px 50px rgba(0,0,0,.5);
+      --card-glass: rgba(36, 36, 40, 0.88);
+      --menubar: rgba(30, 30, 34, 0.72);
+      --desktop: radial-gradient(1200px 600px at 20% 0%, #1b2b55 0%, transparent 60%),
+                 radial-gradient(900px 500px at 90% 30%, #3a1b4d 0%, transparent 60%),
+                 linear-gradient(180deg, #0f1424 0%, #120f1c 100%);
+      --code-bg: #000;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    overflow-x: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font: 17px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  :focus-visible { outline: 3px solid var(--accent-strong); outline-offset: 2px; border-radius: 6px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  .skip { position: absolute; left: -999px; top: 8px; background: var(--surface); padding: 8px 14px; border-radius: 8px; z-index: 100; }
+  .skip:focus { left: 8px; }
+  kbd {
+    font: 600 0.8em/1 -apple-system, BlinkMacSystemFont, sans-serif;
+    padding: 3px 7px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--surface); box-shadow: 0 1px 0 var(--border);
+  }
+
+  /* ---------- Nav ---------- */
+  header.nav {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in srgb, var(--bg) 80%, transparent);
+    backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav .wrap { display: flex; align-items: center; gap: 24px; height: 56px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; color: var(--text); }
+  .brand:hover { text-decoration: none; }
+  .nav nav { display: flex; gap: 22px; margin-left: auto; font-size: 14px; }
+  .nav nav a { color: var(--text-2); }
+  .nav .gh { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--text); }
+  @media (max-width: 760px) { .nav nav { display: none; } .nav .gh { margin-left: auto; } }
+
+  .app-icon { width: 28px; height: 28px; flex: none; }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 72px 0 40px; text-align: center; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;
+    color: var(--accent); background: var(--accent-soft); padding: 6px 12px; border-radius: 999px;
+  }
+  h1 {
+    font-size: clamp(40px, 6.4vw, 72px); line-height: 1.04; letter-spacing: -0.035em;
+    margin: 20px auto 18px; max-width: 14ch; font-weight: 750;
+  }
+  h1 .grad {
+    background: linear-gradient(90deg, #0a84ff, #8e5cff 60%, #e24bb3);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .lede { font-size: clamp(18px, 2.2vw, 22px); color: var(--text-2); max-width: 40ch; margin: 0 auto 32px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: center; }
+  .install {
+    display: inline-flex; align-items: center; gap: 12px;
+    background: var(--code-bg); color: var(--code-text);
+    font: 15px/1 ui-monospace, "SF Mono", Menlo, monospace;
+    padding: 6px 6px 6px 18px; border-radius: 14px; box-shadow: var(--shadow);
+    max-width: 100%;
+  }
+  .install code { white-space: nowrap; overflow-x: auto; padding: 10px 0; min-width: 0; }
+  .cta > * { max-width: 100%; }
+  @media (max-width: 600px) {
+    .install { font-size: 13px; }
+    .menubar .left span, .menubar .right > span:not(.mb-icon):not(#clock) { display: none; }
+    .card { padding: 12px; }
+    .stage { border-radius: 16px; }
+  }
+  .install .prompt { color: #8e8e93; user-select: none; }
+  .copy-btn {
+    font: 600 13px -apple-system, BlinkMacSystemFont, sans-serif; cursor: pointer;
+    border: 0; border-radius: 10px; padding: 10px 14px;
+    background: rgba(255,255,255,.14); color: #fff; min-width: 76px;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,.22); }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px;
+    padding: 13px 20px; border-radius: 14px; border: 1px solid var(--border);
+    background: var(--surface); color: var(--text);
+  }
+  .btn:hover { text-decoration: none; border-color: var(--accent); }
+  .meta { margin-top: 18px; font-size: 13px; color: var(--text-3); }
+
+  /* ---------- Demo (desktop + menu bar + card) ---------- */
+  .stage {
+    margin: 56px auto 0; max-width: 980px; border-radius: 22px; overflow: hidden;
+    background: var(--desktop); box-shadow: var(--shadow); border: 1px solid var(--border);
+    text-align: left;
+  }
+  .menubar {
+    display: flex; align-items: center; gap: 18px; height: 30px; padding: 0 14px;
+    background: var(--menubar); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    font-size: 13px; color: var(--text);
+  }
+  .menubar .left b { font-weight: 700; }
+  .menubar .left span { margin-left: 16px; opacity: .85; }
+  .menubar .right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+  .mb-icon {
+    display: grid; place-items: center; width: 30px; height: 22px; border-radius: 5px;
+    background: rgba(127,127,127,.28); position: relative;
+  }
+  .mb-icon svg { width: 17px; height: 17px; }
+  .desk { position: relative; display: flex; justify-content: flex-end; align-items: flex-start; padding: 10px 28px 48px; min-height: 470px; }
+  .desk-note {
+    position: absolute; left: 36px; bottom: 40px; max-width: 290px; color: var(--text-2); font-size: 14px;
+  }
+  .desk-note strong { color: var(--text); display: block; font-size: 16px; margin-bottom: 4px; }
+  @media (max-width: 900px) { .desk-note { display: none; } .desk { justify-content: center; padding: 10px 12px 28px; min-height: 0; } }
+
+  .card {
+    width: 400px; max-width: 100%; position: relative;
+    background: var(--card-glass); backdrop-filter: blur(30px) saturate(160%); -webkit-backdrop-filter: blur(30px) saturate(160%);
+    border: 1px solid var(--border); border-radius: 14px; padding: 14px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.25), 0 0 0 .5px rgba(0,0,0,.1);
+    font-size: 13px; line-height: 1.4;
+  }
+  .card::before { /* popover arrow */
+    content: ""; position: absolute; top: -7px; right: 44px; width: 14px; height: 14px;
+    background: var(--card-glass); border-left: 1px solid var(--border); border-top: 1px solid var(--border);
+    transform: rotate(45deg);
+  }
+  @media (max-width: 900px) { .card::before { right: 50%; } }
+  .c-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .c-head .title { font-weight: 650; font-size: 13px; }
+  .c-head .sub { color: var(--text-3); font-size: 11px; }
+  .c-head .icons { margin-left: auto; display: flex; gap: 2px; color: var(--text-3); }
+  .c-head .icons span { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; }
+  .chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
+  .chip {
+    display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0;
+    border-radius: 8px; border: 1px solid transparent; background: rgba(127,127,127,.1);
+    color: var(--text); font: 11px -apple-system, BlinkMacSystemFont, sans-serif; cursor: pointer;
+  }
+  .chip:hover { background: rgba(127,127,127,.16); }
+  .chip svg { width: 17px; height: 17px; }
+  .chip[aria-checked="true"] { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent-strong) 55%, transparent); color: var(--accent); font-weight: 650; }
+  .editor {
+    background: var(--surface); border: 1.5px solid var(--accent-strong); border-radius: 10px; overflow: hidden;
+  }
+  .editor textarea {
+    display: block; width: 100%; height: 104px; resize: none; border: 0; outline: 0; padding: 9px 11px;
+    font: 13px/1.45 -apple-system, BlinkMacSystemFont, sans-serif; color: var(--text); background: transparent;
+  }
+  .editor .bar { display: flex; align-items: center; padding: 3px 10px 6px; color: var(--text-3); font-size: 10px; }
+  .actions { display: flex; align-items: center; gap: 8px; margin: 12px 0; min-height: 34px; }
+  .status { display: none; align-items: center; gap: 8px; color: var(--text-3); }
+  .status.on { display: flex; }
+  .spinner {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid rgba(127,127,127,.3); border-top-color: var(--text-3);
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .submit {
+    margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+    background: var(--accent-strong); color: #fff; border: 0; border-radius: 8px;
+    padding: 8px 14px; font: 600 13px -apple-system, BlinkMacSystemFont, sans-serif; cursor: pointer;
+  }
+  .submit:disabled { opacity: .55; cursor: default; }
+  .submit .k { opacity: .85; font-size: 11px; }
+  .result {
+    background: var(--surface); border: 1px solid color-mix(in srgb, var(--accent-strong) 35%, transparent);
+    border-radius: 10px; overflow: hidden; display: none;
+  }
+  .result.on { display: block; }
+  .result .rh {
+    display: flex; align-items: center; gap: 6px; padding: 7px 10px; background: var(--accent-soft);
+    border-bottom: 1px solid var(--border);
+    font-size: 10.5px; font-weight: 650; letter-spacing: .04em; text-transform: uppercase; color: var(--text-3);
+  }
+  .result .rh .copied { margin-left: auto; text-transform: none; letter-spacing: 0; font-weight: 500; color: var(--green); font-size: 11px; }
+  .result .rb { padding: 12px; white-space: pre-wrap; font-size: 13.5px; line-height: 1.6; min-height: 3em; }
+  .c-foot { display: flex; gap: 4px; margin-top: 12px; color: var(--text-3); font-size: 10px; }
+  .c-foot span:last-child { margin-left: auto; }
+  .demo-caption { text-align: center; color: var(--text-3); font-size: 13px; margin: 14px 0 0; }
+
+  /* ---------- Sections ---------- */
+  section { padding: 96px 0; }
+  section.alt { background: var(--bg-alt); }
+  .kicker { color: var(--accent); font-weight: 650; font-size: 14px; letter-spacing: .02em; }
+  h2 { font-size: clamp(30px, 4.2vw, 46px); line-height: 1.1; letter-spacing: -0.025em; margin: 8px 0 14px; font-weight: 720; }
+  .section-lede { color: var(--text-2); font-size: 19px; max-width: 60ch; margin: 0 0 48px; }
+  .center { text-align: center; }
+  .center .section-lede { margin-left: auto; margin-right: auto; }
+
+  .grid { display: grid; gap: 18px; grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .grid { grid-template-columns: 1fr; } }
+  .feature {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px;
+  }
+  .feature .ic {
+    width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
+    background: var(--accent-soft); color: var(--accent); margin-bottom: 16px;
+  }
+  .feature .ic svg { width: 22px; height: 22px; }
+  .feature h3 { margin: 0 0 6px; font-size: 18px; letter-spacing: -0.01em; }
+  .feature p { margin: 0; color: var(--text-2); font-size: 15.5px; }
+
+  .modes { display: grid; gap: 18px; grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 760px) { .modes { grid-template-columns: 1fr; } }
+  .mode { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+  .mode h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-size: 18px; }
+  .mode h3 svg { width: 22px; height: 22px; color: var(--accent); }
+  .mode .k { margin-left: auto; font-size: 13px; font-weight: 500; color: var(--text-3); }
+  .pair { display: grid; gap: 8px; font-size: 15px; }
+  .pair .from { color: var(--text-3); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--red) 55%, transparent); }
+  .pair .from.plain { text-decoration: none; }
+  .pair .to { color: var(--text); }
+  .pair .lbl { font-size: 11px; font-weight: 650; letter-spacing: .05em; text-transform: uppercase; color: var(--text-3); margin-bottom: 2px; }
+
+  .steps { display: grid; gap: 18px; grid-template-columns: repeat(3, 1fr); counter-reset: step; }
+  @media (max-width: 900px) { .steps { grid-template-columns: 1fr; } }
+  .step { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px 26px 26px 76px; }
+  .step::before {
+    counter-increment: step; content: counter(step);
+    position: absolute; left: 24px; top: 24px; width: 36px; height: 36px; border-radius: 50%;
+    display: grid; place-items: center; font-weight: 700; color: #fff; background: var(--accent-strong);
+  }
+  .step h3 { margin: 4px 0 6px; font-size: 18px; }
+  .step p { margin: 0; color: var(--text-2); font-size: 15.5px; }
+
+  .terminal {
+    margin-top: 28px; background: var(--code-bg); color: var(--code-text); border-radius: var(--radius);
+    padding: 22px 24px; font: 14px/1.7 ui-monospace, "SF Mono", Menlo, monospace; overflow-x: auto;
+  }
+  .terminal .c { color: #8e8e93; }
+  .terminal .s { color: #ffd60a; }
+  .terminal .f { color: #64d2ff; }
+
+  .split { display: grid; gap: 48px; grid-template-columns: 1fr 1fr; align-items: start; }
+  @media (max-width: 860px) { .split { grid-template-columns: 1fr; } }
+  .list { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+  .list li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; color: var(--text-2); }
+  .list li svg { width: 22px; height: 22px; color: var(--green); margin-top: 2px; }
+  .list li b { color: var(--text); font-weight: 650; }
+
+  table.keys { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  table.keys th, table.keys td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--border); font-size: 15.5px; }
+  table.keys tr:last-child td { border-bottom: 0; }
+  table.keys th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-3); }
+
+  .install-grid { display: grid; gap: 18px; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 860px) { .install-grid { grid-template-columns: 1fr; } }
+  .install-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px; }
+  .install-card h3 { margin: 0 0 4px; font-size: 19px; }
+  .install-card p { margin: 0 0 16px; color: var(--text-2); font-size: 15px; }
+  .install-card .tag { font-size: 12px; font-weight: 650; color: var(--accent); background: var(--accent-soft); padding: 3px 8px; border-radius: 999px; margin-left: 8px; vertical-align: 2px; }
+  pre.code {
+    margin: 0; background: var(--code-bg); color: var(--code-text); border-radius: 12px; padding: 16px 18px;
+    font: 13.5px/1.7 ui-monospace, "SF Mono", Menlo, monospace; overflow-x: auto;
+  }
+  .reqs { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+  .reqs span { font-size: 14px; color: var(--text-2); background: var(--surface); border: 1px solid var(--border); padding: 7px 14px; border-radius: 999px; }
+
+  details { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 0 22px; margin-bottom: 12px; }
+  summary { cursor: pointer; padding: 18px 0; font-weight: 620; font-size: 17px; list-style: none; display: flex; align-items: center; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; margin-left: auto; font-size: 22px; color: var(--text-3); font-weight: 400; }
+  details[open] summary::after { content: "–"; }
+  details p { margin: 0 0 18px; color: var(--text-2); font-size: 15.5px; }
+  .faq { max-width: 760px; margin: 0 auto; }
+
+  .final { text-align: center; }
+  footer { border-top: 1px solid var(--border); padding: 36px 0 48px; color: var(--text-3); font-size: 14px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 16px 28px; align-items: center; }
+  footer .links { display: flex; gap: 22px; margin-left: auto; }
+  footer .links a { color: var(--text-2); }
+  footer .fine { flex-basis: 100%; font-size: 12.5px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spinner { animation: none; border-top-color: rgba(127,127,127,.3); }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- SVG symbols (approximations of the SF Symbols used in the app) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-app" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#0a84ff"/><g stroke="#fff" stroke-width="5" stroke-linecap="round"><path d="M14 20h26M14 31h20M14 42h14"/></g><circle cx="45" cy="43" r="11" fill="#fff"/><path d="M40 43l4 4 6-8" stroke="#0a84ff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-badge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h11M4 11h8M4 16h5"/><circle cx="17" cy="16" r="5"/><path d="M14.8 16l1.6 1.6 2.8-3.2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9"/></symbol>
+  <symbol id="i-wand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20L15 9"/><path d="M13.5 6.5l4 4"/><path d="M18 3v3M16.5 4.5h3M21 9v2M20 10h2M10 3v2M9 4h2"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9S14.5 18.3 12 21c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></symbol>
+  <symbol id="i-power" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v8"/><path d="M6.3 6.8a8 8 0 1 0 11.4 0"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3 4v4h4"/><path d="M12 8v4l3 2"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></symbol>
+  <symbol id="i-a11y" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.5" r="1.8"/><path d="M5 8.5l7 1.5 7-1.5M12 10v5M12 15l-3 6M12 15l3 6"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 8h18M8 21h8"/></symbol>
+  <symbol id="i-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5" fill="currentColor" opacity=".15" stroke="none"/><path d="M7.5 12.5l3 3 6-6.5"/></symbol>
+  <symbol id="i-github" viewBox="0 0 16 16"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></symbol>
+</svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="GrammarBar home">
+      <svg class="app-icon" aria-hidden="true"><use href="#i-app"/></svg>
+      GrammarBar
+    </a>
+    <nav aria-label="Sections">
+      <a href="#features">Features</a>
+      <a href="#modes">Modes</a>
+      <a href="#how">How it works</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#install">Install</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a class="gh" href="https://github.com/sarifmiaa/GrammarBar">
+      <svg width="18" height="18" aria-hidden="true"><use href="#i-github"/></svg> GitHub
+    </a>
+  </div>
+</header>
+
+<main id="main">
+  <!-- ================= HERO ================= -->
+  <div class="hero" id="top">
+    <div class="wrap">
+      <span class="eyebrow">Free &amp; open source · macOS 13+</span>
+      <h1>Better writing, <span class="grad">one click</span> away.</h1>
+      <p class="lede">GrammarBar lives in your menu bar and fixes, polishes or translates any text with Claude. Paste, press <kbd>⌘</kbd><kbd>↩</kbd> — it's already on your clipboard.</p>
+
+      <div class="cta">
+        <div class="install" role="group" aria-label="Homebrew install command">
+          <code><span class="prompt">$ </span><span id="brew-cmd">brew install --cask sarifmiaa/tap/grammarbar</span></code>
+          <button class="copy-btn" type="button" data-copy="brew install --cask sarifmiaa/tap/grammarbar">Copy</button>
+        </div>
+        <a class="btn" href="https://github.com/sarifmiaa/GrammarBar/releases/latest">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+          Download
+        </a>
+      </div>
+      <p class="meta">Requires <a href="https://docs.claude.com/en/docs/claude-code/overview">Claude Code</a> · Apple Silicon &amp; Intel · MIT licensed</p>
+
+      <!-- Interactive replica of the app -->
+      <div class="stage" aria-label="Interactive demo of the GrammarBar card">
+        <div class="menubar" aria-hidden="true">
+          <div class="left"><b>Slack</b><span>File</span><span>Edit</span><span>View</span></div>
+          <div class="right">
+            <span class="mb-icon"><svg><use href="#i-badge"/></svg></span>
+            <span>Wi‑Fi</span>
+            <span id="clock">Tue 10:03</span>
+          </div>
+        </div>
+        <div class="desk">
+          <div class="desk-note">
+            <strong>Try it right here.</strong>
+            Pick a mode and press the button — this is a replica of the real card with example outputs.
+          </div>
+
+          <div class="card" role="region" aria-label="GrammarBar card (demo)">
+            <div class="c-head">
+              <svg width="28" height="28" aria-hidden="true"><use href="#i-app"/></svg>
+              <div>
+                <div class="title">GrammarBar</div>
+                <div class="sub" id="demo-sub">Fix grammar</div>
+              </div>
+              <div class="icons" aria-hidden="true">
+                <span><svg width="15" height="15"><use href="#i-clock"/></svg></span>
+                <span><svg width="15" height="15"><use href="#i-power"/></svg></span>
+                <span><svg width="14" height="14"><use href="#i-x"/></svg></span>
+              </div>
+            </div>
+
+            <div class="chips" role="radiogroup" aria-label="Mode">
+              <button type="button" class="chip" role="radio" aria-checked="true" data-mode="fix"><svg><use href="#i-check"/></svg>Fix</button>
+              <button type="button" class="chip" role="radio" aria-checked="false" data-mode="polish"><svg><use href="#i-wand"/></svg>Polish</button>
+              <button type="button" class="chip" role="radio" aria-checked="false" data-mode="en"><svg><use href="#i-globe"/></svg>English</button>
+              <button type="button" class="chip" role="radio" aria-checked="false" data-mode="de"><svg><use href="#i-globe"/></svg>German</button>
+            </div>
+
+            <div class="editor">
+              <label for="demo-input" class="skip">Text to process</label>
+              <textarea id="demo-input" spellcheck="false"></textarea>
+              <div class="bar"><span id="demo-count">0 characters</span></div>
+            </div>
+
+            <div class="actions">
+              <div class="status" id="demo-status" role="status"><span class="spinner" aria-hidden="true"></span>Asking Claude…</div>
+              <button type="button" class="submit" id="demo-submit"><svg width="14" height="14" aria-hidden="true"><use href="#i-check"/></svg><span id="demo-action">Fix</span><span class="k" aria-hidden="true">⌘↩</span></button>
+            </div>
+
+            <div class="result" id="demo-result" aria-live="polite">
+              <div class="rh"><span aria-hidden="true">✦</span>Result<span class="copied" id="demo-copied">✓ Copied</span></div>
+              <div class="rb" id="demo-output"></div>
+            </div>
+
+            <div class="c-foot" aria-hidden="true"><span>Claude Haiku · ⌘1–4 switch mode</span><span>Esc to close</span></div>
+          </div>
+        </div>
+      </div>
+      <p class="demo-caption">Demo with example outputs — the real app sends your text to Claude through your Claude Code login.</p>
+    </div>
+  </div>
+
+  <!-- ================= FEATURES ================= -->
+  <section id="features" class="alt">
+    <div class="wrap">
+      <div class="kicker">Features</div>
+      <h2>Small app. No friction.</h2>
+      <p class="section-lede">Everything happens in a single card under the menu bar icon. No windows to manage, no copy-paste between tabs, no extra accounts.</p>
+      <div class="grid">
+        <div class="feature"><div class="ic"><svg><use href="#i-clip"/></svg></div><h3>Clipboard-first</h3><p>Every result is copied automatically. Paste it straight back into Slack, Mail or your editor.</p></div>
+        <div class="feature"><div class="ic"><svg><use href="#i-pin"/></svg></div><h3>Stays open</h3><p>The card doesn't vanish when you click elsewhere, so you can grab text from another app and come back.</p></div>
+        <div class="feature"><div class="ic"><svg><use href="#i-clock"/></svg></div><h3>History</h3><p>Your last 100 results, searchable. One click restores the input and output, ready to tweak.</p></div>
+        <div class="feature"><div class="ic"><svg><use href="#i-check"/></svg></div><h3>Minimal edits</h3><p>Fix mode changes as little as possible and keeps your tone, line breaks, names, links and emojis.</p></div>
+        <div class="feature"><div class="ic"><svg><use href="#i-bolt"/></svg></div><h3>Native &amp; light</h3><p>SwiftUI, no Electron, no dependencies. A universal binary under 2&nbsp;MB that never blocks the UI.</p></div>
+        <div class="feature"><div class="ic"><svg><use href="#i-a11y"/></svg></div><h3>Accessible</h3><p>VoiceOver labels and announcements, full keyboard access, and support for Increase Contrast and Reduce Motion.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= MODES ================= -->
+  <section id="modes">
+    <div class="wrap">
+      <div class="kicker">Four modes</div>
+      <h2>Fix it, polish it, or translate it.</h2>
+      <p class="section-lede">Switch with a click or <kbd>⌘</kbd><kbd>1</kbd>–<kbd>4</kbd>. GrammarBar remembers your last mode, and <em>Use as input</em> lets you chain them — translate, then polish.</p>
+      <div class="modes">
+        <div class="mode">
+          <h3><svg><use href="#i-check"/></svg>Fix grammar<span class="k">⌘1</span></h3>
+          <div class="pair">
+            <div><div class="lbl">Before</div><div class="from">i has went to the store yesterday and buyed three apple</div></div>
+            <div><div class="lbl">After</div><div class="to">I went to the store yesterday and bought three apples.</div></div>
+          </div>
+        </div>
+        <div class="mode">
+          <h3><svg><use href="#i-wand"/></svg>Polish / make natural<span class="k">⌘2</span></h3>
+          <div class="pair">
+            <div><div class="lbl">Before</div><div class="from plain">I gave a try did not come well, maybe we can have this in next version giving more thoughts</div></div>
+            <div><div class="lbl">After</div><div class="to">I gave it a try, but it didn't turn out well. Maybe we can revisit it in the next version.</div></div>
+          </div>
+        </div>
+        <div class="mode">
+          <h3><svg><use href="#i-globe"/></svg>Translate to English<span class="k">⌘3</span></h3>
+          <div class="pair">
+            <div><div class="lbl">German</div><div class="from plain">Kannst du mir bitte bis morgen die Folien schicken? 🙏</div></div>
+            <div><div class="lbl">English</div><div class="to">Could you please send me the slides by tomorrow? 🙏</div></div>
+          </div>
+        </div>
+        <div class="mode">
+          <h3><svg><use href="#i-globe"/></svg>Translate to German<span class="k">⌘4</span></h3>
+          <div class="pair">
+            <div><div class="lbl">English</div><div class="from plain">Dear Ms. Weber, thank you for your quick reply.</div></div>
+            <div><div class="lbl">German · keeps <em>Sie</em></div><div class="to">Sehr geehrte Frau Weber, vielen Dank für Ihre schnelle Antwort.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= HOW IT WORKS ================= -->
+  <section id="how" class="alt">
+    <div class="wrap">
+      <div class="kicker">How it works</div>
+      <h2>Your Claude Code, one hop away.</h2>
+      <p class="section-lede">GrammarBar doesn't need an API key. It calls the Claude Code CLI you're already signed in to, headlessly, in the background.</p>
+      <div class="steps">
+        <div class="step"><h3>Paste or type</h3><p>Click the menu bar icon. The input is focused the moment the card opens.</p></div>
+        <div class="step"><h3>Press <kbd>⌘</kbd><kbd>↩</kbd></h3><p>Your text is piped to <code>claude -p</code> over stdin with a mode-specific instruction.</p></div>
+        <div class="step"><h3>Paste the result</h3><p>The answer appears in the card and is already on your clipboard, and saved to history.</p></div>
+      </div>
+      <div class="terminal" role="img" aria-label="The command GrammarBar runs: claude -p with the mode instruction, model haiku, output format text; your text is sent on standard input.">
+<span class="c"># what GrammarBar runs for each request</span>
+<span class="f">claude</span> -p <span class="s">"&lt;mode instruction&gt;"</span> --model haiku --output-format text <span class="c"># your text → stdin</span>
+      </div>
+      <div class="grid" style="margin-top:18px">
+        <div class="feature"><h3>Safe input</h3><p>Text goes through stdin, never a shell argument — quotes and newlines can't break anything.</p></div>
+        <div class="feature"><h3>Clean context</h3><p>Runs in a temporary folder, so no project <code>CLAUDE.md</code> leaks into your request.</p></div>
+        <div class="feature"><h3>Finds <code>claude</code> anywhere</h3><p>Checks the usual install paths, then falls back to your login shell — nvm and asdf setups just work.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PRIVACY + SHORTCUTS ================= -->
+  <section id="privacy">
+    <div class="wrap split">
+      <div>
+        <div class="kicker">Privacy</div>
+        <h2>No servers. No tracking.</h2>
+        <ul class="list">
+          <li><svg><use href="#i-ok"/></svg><span><b>Your session, your data.</b> Text goes to Anthropic through your own Claude Code login — exactly as if you typed it into <code>claude</code>.</span></li>
+          <li><svg><use href="#i-ok"/></svg><span><b>Nothing in between.</b> GrammarBar has no backend, analytics or telemetry.</span></li>
+          <li><svg><use href="#i-ok"/></svg><span><b>Local history.</b> Stored only on your Mac. Clear it in the app, or remove everything with <code>brew uninstall --zap</code>.</span></li>
+          <li><svg><use href="#i-ok"/></svg><span><b>Open source.</b> Every line is on GitHub under the MIT license.</span></li>
+        </ul>
+      </div>
+      <div id="shortcuts">
+        <div class="kicker">Keyboard</div>
+        <h2>Hands on the keys.</h2>
+        <table class="keys">
+          <thead><tr><th scope="col">Shortcut</th><th scope="col">Action</th></tr></thead>
+          <tbody>
+            <tr><td><kbd>⌘</kbd> <kbd>↩</kbd></td><td>Submit</td></tr>
+            <tr><td><kbd>⌘</kbd> <kbd>1</kbd> … <kbd>4</kbd></td><td>Switch mode</td></tr>
+            <tr><td><kbd>Esc</kbd></td><td>Leave history, then close the card</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= INSTALL ================= -->
+  <section id="install" class="alt">
+    <div class="wrap">
+      <div class="center">
+        <div class="kicker">Install</div>
+        <h2>Up and running in a minute.</h2>
+        <p class="section-lede">Install Claude Code and run <code>claude</code> once to sign in, then pick one:</p>
+      </div>
+      <div class="install-grid">
+        <div class="install-card">
+          <h3>Homebrew <span class="tag">Recommended</span></h3>
+          <p>Installs to /Applications and updates with <code>brew upgrade</code>.</p>
+<pre class="code">brew install --cask sarifmiaa/tap/grammarbar</pre>
+        </div>
+        <div class="install-card">
+          <h3>Build from source</h3>
+          <p>Needs the Xcode Command Line Tools — no Xcode project.</p>
+<pre class="code">git clone https://github.com/sarifmiaa/GrammarBar.git
+cd GrammarBar && ./build.sh
+mv GrammarBar.app /Applications/</pre>
+        </div>
+      </div>
+      <div class="reqs" aria-label="Requirements">
+        <span>macOS 13 Ventura or later</span>
+        <span>Apple Silicon &amp; Intel</span>
+        <span>Claude Code, signed in</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="center">
+        <div class="kicker">FAQ</div>
+        <h2>Questions, answered.</h2>
+      </div>
+      <div class="faq">
+        <details><summary>Does it cost anything?</summary><p>GrammarBar is free and open source. Requests use your existing Claude Code plan or usage, like any other <code>claude</code> command.</p></details>
+        <details><summary>Which model does it use?</summary><p>Claude Haiku by default, for speed. Change <code>claudeModel</code> in <code>Config.swift</code> to <code>"sonnet"</code> and rebuild for higher quality.</p></details>
+        <details><summary>Can I add my own languages or modes?</summary><p>Yes — each mode is a single case with its instruction in <code>Mode.swift</code>. Adding "Translate to Spanish" is a few lines.</p></details>
+        <details><summary>It says “claude CLI not found”.</summary><p>Install Claude Code and run <code>claude</code> once in Terminal to log in. GrammarBar checks the common install locations and your login shell's PATH.</p></details>
+        <details><summary>macOS says the app can't be opened.</summary><p>GrammarBar is ad-hoc signed rather than notarized. The Homebrew cask handles this for you; for a manual download, run <code>xattr -dr com.apple.quarantine GrammarBar.app</code> or allow it in System Settings → Privacy &amp; Security.</p></details>
+        <details><summary>How do I start it at login?</summary><p>System Settings → General → Login Items &amp; Extensions → Open at Login → <b>+</b>, then choose GrammarBar from /Applications.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="alt final">
+    <div class="wrap">
+      <svg width="72" height="72" aria-hidden="true"><use href="#i-app"/></svg>
+      <h2>Write it once. Send it right.</h2>
+      <p class="section-lede" style="margin:0 auto 28px">One command away.</p>
+      <div class="cta">
+        <div class="install" role="group" aria-label="Homebrew install command">
+          <code><span class="prompt">$ </span>brew install --cask sarifmiaa/tap/grammarbar</code>
+          <button class="copy-btn" type="button" data-copy="brew install --cask sarifmiaa/tap/grammarbar">Copy</button>
+        </div>
+        <a class="btn" href="https://github.com/sarifmiaa/GrammarBar"><svg width="18" height="18" aria-hidden="true"><use href="#i-github"/></svg>Star on GitHub</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#top"><svg class="app-icon" aria-hidden="true"><use href="#i-app"/></svg>GrammarBar</a>
+    <div class="links">
+      <a href="https://github.com/sarifmiaa/GrammarBar">GitHub</a>
+      <a href="https://github.com/sarifmiaa/GrammarBar/releases">Releases</a>
+      <a href="https://github.com/sarifmiaa/GrammarBar/issues">Issues</a>
+      <a href="https://github.com/sarifmiaa/GrammarBar/blob/main/LICENSE">MIT License</a>
+    </div>
+    <p class="fine">© 2026 Sarif Mia. GrammarBar is an independent open-source project and is not affiliated with or endorsed by Anthropic. Claude and Claude Code are trademarks of Anthropic.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  // ---- Copy buttons
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = btn.getAttribute('data-copy');
+      var done = function () { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1600); };
+      if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done, done); } else { done(); }
+    });
+  });
+
+  // ---- Interactive demo (example outputs, no network)
+  var MODES = {
+    fix:    { name: 'Fix grammar',           action: 'Fix',       icon: '#i-check',
+              input: 'i has went to the store yesterday and buyed three apple, its was realy good.\nSee you tommorow 😊',
+              output: 'I went to the store yesterday and bought three apples, it was really good.\nSee you tomorrow 😊' },
+    polish: { name: 'Polish / make natural', action: 'Polish',    icon: '#i-wand',
+              input: 'thanks for the feedback i had looked and worked almost on all points. the tree ui i feel its to much for the ui, maybe we can have this in next version giving more thoughts',
+              output: "Thanks for the feedback! I've worked through almost all of the points. The tree-style UI feels like too much for now, so maybe we can revisit it in the next version once we've given it more thought." },
+    en:     { name: 'Translate to English',  action: 'Translate', icon: '#i-globe',
+              input: 'Hallo Anna, kannst du mir bitte bis morgen die Folien schicken? Danke! 🙏',
+              output: 'Hi Anna, could you please send me the slides by tomorrow? Thanks! 🙏' },
+    de:     { name: 'Translate to German',   action: 'Translate', icon: '#i-globe',
+              input: 'Dear Ms. Weber, thank you for your quick reply. The meeting has moved to 3 pm.',
+              output: 'Sehr geehrte Frau Weber, vielen Dank für Ihre schnelle Antwort. Das Meeting wurde auf 15 Uhr verschoben.' }
+  };
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function (id) { return document.getElementById(id); };
+  var input = $('demo-input'), count = $('demo-count'), sub = $('demo-sub'), action = $('demo-action'),
+      submit = $('demo-submit'), statusEl = $('demo-status'), result = $('demo-result'),
+      output = $('demo-output'), copied = $('demo-copied');
+  var current = 'fix', timers = [];
+
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+  function updateCount() { count.textContent = input.value.length + ' characters'; }
+
+  function selectMode(key) {
+    clearTimers();
+    current = key;
+    var m = MODES[key];
+    document.querySelectorAll('.chip').forEach(function (c) { c.setAttribute('aria-checked', c.dataset.mode === key ? 'true' : 'false'); });
+    sub.textContent = m.name;
+    action.textContent = m.action;
+    submit.querySelector('use').setAttribute('href', m.icon);
+    input.value = m.input;
+    updateCount();
+    result.classList.remove('on');
+    statusEl.classList.remove('on');
+    submit.disabled = false;
+  }
+
+  function run() {
+    if (submit.disabled) return;
+    clearTimers();
+    var m = MODES[current];
+    var isExample = input.value.trim() === m.input.trim();
+    submit.disabled = true;
+    statusEl.classList.add('on');
+    result.classList.remove('on');
+    timers.push(setTimeout(function () {
+      statusEl.classList.remove('on');
+      result.classList.add('on');
+      copied.style.visibility = 'hidden';
+      var text = isExample ? m.output
+        : 'This demo only has example outputs. Install GrammarBar to process your own text with Claude.';
+      if (reduceMotion) {
+        output.textContent = text; finish();
+      } else {
+        output.textContent = '';
+        var i = 0;
+        (function type() {
+          i = Math.min(text.length, i + 3);
+          output.textContent = text.slice(0, i);
+          if (i < text.length) timers.push(setTimeout(type, 12)); else finish();
+        })();
+      }
+      function finish() { copied.style.visibility = isExample ? 'visible' : 'hidden'; submit.disabled = false; }
+    }, reduceMotion ? 300 : 1100));
+  }
+
+  document.querySelectorAll('.chip').forEach(function (c) { c.addEventListener('click', function () { selectMode(c.dataset.mode); }); });
+  submit.addEventListener('click', run);
+  input.addEventListener('input', updateCount);
+  input.addEventListener('keydown', function (e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); run(); }
+  });
+  selectMode('fix');
+
+  // ---- Live menu bar clock
+  (function tick() {
+    var d = new Date();
+    $('clock').textContent = d.toLocaleDateString('en-US', { weekday: 'short' }) + ' ' +
+      d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    setTimeout(tick, 30000);
+  })();
+})();
+</script>
+</body>
+</html>
