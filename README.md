@@ -146,6 +146,9 @@ claude -p "<mode instruction>" --model haiku --output-format text   # your text 
 ## Project structure
 
 ```
+Resources/AppIcon.icns           # app icon (regenerate: swift scripts/make-icon.swift)
+scripts/make-icon.swift          # renders the icon from the menu bar SF Symbol
+docs/                            # website and install.sh (GitHub Pages)
 Sources/GrammarBar/
 ├── App/
 │   ├── GrammarBarApp.swift      # @main entry point
