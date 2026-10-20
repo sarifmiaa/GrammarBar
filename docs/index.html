@@ -153,24 +153,11 @@
 
   /* ---------- Capture ---------- */
   #capture { border-top: 1px solid var(--border); }
-  .cap-visual {
-    background: var(--desktop); border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow);
-    padding: 26px; display: grid; gap: 18px;
+  .cap-video { margin: 0; max-width: 480px; justify-self: center; width: 100%; }
+  .cap-video video {
+    display: block; width: 100%; height: auto; aspect-ratio: 1080 / 1350;
+    border-radius: 22px; border: 1px solid var(--border); box-shadow: var(--shadow); background: var(--bg-alt);
   }
-  .chat { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; font-size: 14px; }
-  .chat .ch { padding: 10px 14px; border-bottom: 1px solid var(--border); font-weight: 650; font-size: 13px; color: var(--text-2); }
-  .chat .msg { padding: 12px 14px; color: var(--text-2); }
-  .chat .msg b { color: var(--text); font-size: 13px; display: block; }
-  .compose { margin: 0 14px 14px; border: 1.5px solid var(--accent-strong); border-radius: 10px; padding: 10px 12px; color: var(--text); }
-  .compose .caret { display: inline-block; width: 1.5px; height: 1.1em; background: var(--accent-strong); vertical-align: -3px; margin-left: 1px; }
-  .press { display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--text-2); font-size: 14px; }
-  .press kbd { font-size: 15px; padding: 7px 11px; }
-  .press .arrow { font-size: 20px; color: var(--accent); }
-  .mini-card { background: var(--card-glass); border: 1px solid var(--border); border-radius: 14px; padding: 12px; font-size: 13px; box-shadow: 0 12px 40px rgba(0,0,0,.18); }
-  .mini-card .mh { display: flex; align-items: center; gap: 8px; font-weight: 650; margin-bottom: 8px; }
-  .mini-card .mh img { width: 22px; height: 22px; }
-  .mini-card .mh span { margin-left: auto; font-weight: 500; color: var(--text-3); font-size: 11px; }
-  .mini-card .mi { background: var(--surface); border: 1.5px solid var(--accent-strong); border-radius: 8px; padding: 8px 10px; }
   .note { margin-top: 24px; font-size: 14.5px; color: var(--text-3); }
 
   /* ---------- Hero ---------- */
@@ -560,18 +547,11 @@
         </ul>
         <p class="note">Needs Accessibility permission, because macOS requires it for sending keystrokes. On the first press, macOS asks you to allow it.</p>
       </div>
-      <div class="cap-visual" aria-hidden="true">
-        <div class="chat">
-          <div class="ch"># design-review</div>
-          <div class="msg"><b>Anna</b>Any update on the new onboarding flow?</div>
-          <div class="compose">i have finish the most part, will share it tommorow morning<span class="caret"></span></div>
-        </div>
-        <div class="press"><kbd>⌃</kbd><kbd>⌥</kbd><kbd>G</kbd><span class="arrow">↓</span><span>opens the card with the text inside</span></div>
-        <div class="mini-card">
-          <div class="mh"><img src="icon-256.png" alt="" width="22" height="22" loading="lazy">GrammarBar<span>Fix grammar · ⌘↩</span></div>
-          <div class="mi">i have finish the most part, will share it tommorow morning</div>
-        </div>
-      </div>
+      <figure class="cap-video">
+        <video id="demo-video" src="demo.mp4" poster="demo-poster.jpg" width="1080" height="1350"
+               autoplay muted loop playsinline preload="metadata"
+               aria-label="Demo: a Slack reply is captured with Control-Option-G, fixed by GrammarBar, pasted back and sent; then polish and German translation."></video>
+      </figure>
     </div>
   </section>
 
@@ -784,6 +764,14 @@ mv GrammarBar.app /Applications/</pre>
       if (navigator.clipboard) { navigator.clipboard.writeText(text).then(done, done); } else { done(); }
     });
   });
+
+  // ---- Capture video: no autoplay for Reduce Motion
+  var video = document.getElementById('demo-video');
+  if (video && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    video.removeAttribute('autoplay');
+    video.pause();
+    video.controls = true;
+  }
 
   // ---- Interactive demo (example outputs, no network)
   var MODES = {
