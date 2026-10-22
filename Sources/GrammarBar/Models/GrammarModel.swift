@@ -11,6 +11,9 @@ final class GrammarModel: ObservableObject {
     @Published private(set) var history: [HistoryEntry] = []
     @Published var showingHistory = false
 
+    /// The app the input was captured from via ⌃⌥G, if any — a successful result pastes back into it.
+    var sourceApp: NSRunningApplication?
+
     private static let historyKey = "history"
     private static let historyLimit = 100
 
@@ -40,12 +43,32 @@ final class GrammarModel: ObservableObject {
                     self.result = output
                     self.copy()
                     self.addToHistory(HistoryEntry(mode: mode.rawValue, language: entryLanguage, input: text, output: output))
-                    announce("Result ready and copied to clipboard: \(output)")
+                    if let app = self.sourceApp {
+                        self.replaceInSource(app)
+                    } else {
+                        announce("Result ready and copied to clipboard: \(output)")
+                    }
                 case .failure(let err):
                     self.error = err.localizedDescription
                     announce("Error: \(err.localizedDescription)")
                 }
             }
+        }
+    }
+
+    /// Brings the source app back to front and pastes the result over its field.
+    private func replaceInSource(_ app: NSRunningApplication) {
+        guard !app.isTerminated else { return }
+        let name = app.localizedName ?? "the original app"
+        Task {
+            app.activate(options: [.activateIgnoringOtherApps])
+            for _ in 0..<20 {
+                if app.isActive { break }
+                try? await Task.sleep(nanoseconds: 15_000_000)
+            }
+            guard app.isActive else { return }
+            await SelectionCapture.replaceSelection()
+            announce("Replaced in \(name)")
         }
     }
 
@@ -63,6 +86,7 @@ final class GrammarModel: ObservableObject {
     func pasteFromClipboard() {
         if let text = NSPasteboard.general.string(forType: .string) {
             input = text
+            sourceApp = nil
         }
     }
 
@@ -77,6 +101,7 @@ final class GrammarModel: ObservableObject {
         result = ""
         error = nil
         copied = false
+        sourceApp = nil
     }
 
     // MARK: History
@@ -86,6 +111,7 @@ final class GrammarModel: ObservableObject {
         result = entry.output
         error = nil
         copied = false
+        sourceApp = nil
     }
 
     func copyToClipboard(_ text: String) {

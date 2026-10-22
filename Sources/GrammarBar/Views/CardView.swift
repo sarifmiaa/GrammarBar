@@ -319,14 +319,14 @@ struct CardView: View {
             }
             HStack(spacing: 4) {
                 Image(systemName: "keyboard").accessibilityHidden(true)
-                Text("⌃⌥G captures a field from any app")
+                Text("⌃⌥G captures a field from any app and pastes the result back")
                 Spacer()
             }
         }
         .font(.caption2)
         .foregroundColor(.secondary)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Model Claude \(claudeModel.capitalized). Command 1 to 4 switches mode. Escape closes. Control Option G captures a text field from any app, anywhere.")
+        .accessibilityLabel("Model Claude \(claudeModel.capitalized). Command 1 to 4 switches mode. Escape closes. Control Option G captures a text field from any app, anywhere, and pastes the result straight back into it.")
     }
 
     private func focusInput() {

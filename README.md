@@ -92,7 +92,9 @@ so they are the supported ways to install. The certificate's fingerprint is pinn
    text field and press <kbd>⌃</kbd><kbd>⌥</kbd><kbd>G</kbd> to pull its contents straight into the card.
 2. Choose a mode, type or paste text, press <kbd>⌘</kbd><kbd>↩</kbd>.
    For *Translate to …*, pick the target language from the **Translate to** menu under the mode buttons.
-3. The result appears below the input and is copied to the clipboard.
+3. The result appears below the input and is copied to the clipboard. If the text came in via
+   <kbd>⌃</kbd><kbd>⌥</kbd><kbd>G</kbd>, GrammarBar additionally pastes it straight back into the field it
+   was captured from, replacing the original — the card stays open behind it so you can switch back to it.
 
 ### Capture from anywhere
 
@@ -101,6 +103,13 @@ field. Put your cursor in the field and press it: GrammarBar simulates <kbd>⌘<
 <kbd>⌘</kbd><kbd>C</kbd> to select and copy the whole field, then opens the card with it already in the
 input, ready for you to pick a mode and submit. It always grabs the entire field — there's no way to copy
 just part of it with the shortcut; for that, select the part you want and use regular copy/paste instead.
+
+Submitting from a capture switches back to that app and simulates <kbd>⌘</kbd><kbd>A</kbd> then
+<kbd>⌘</kbd><kbd>V</kbd> again — re-selecting the whole field rather than trusting its original selection
+to have survived the trip to GrammarBar and back (it often doesn't) — so the paste reliably replaces the
+whole field with the result. If you'd rather review the result first, use <kbd>⌘</kbd><kbd>Z</kbd> in that
+app afterwards to undo the replacement — it's a single paste, like any other. Typing or pasting text into
+the card by hand skips all of this: the result just sits in the card and on the clipboard, as before.
 
 This needs **Accessibility** permission (System Settings → Privacy & Security → Accessibility → `GrammarBar`),
 since posting synthetic key events system-wide requires it. The first press shows the system's own prompt to

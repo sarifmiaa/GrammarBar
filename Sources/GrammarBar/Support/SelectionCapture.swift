@@ -37,6 +37,14 @@ enum SelectionCapture {
         return nil
     }
 
+    /// Re-selects the whole field (Cmd+A) and pastes over it (Cmd+V), replacing it with the result.
+    static func replaceSelection() async {
+        guard let source = CGEventSource(stateID: .combinedSessionState) else { return }
+        post(key: kVK_ANSI_A, source: source)
+        try? await Task.sleep(nanoseconds: 30_000_000)
+        post(key: kVK_ANSI_V, source: source)
+    }
+
     private static func post(key: Int, source: CGEventSource) {
         let keyDown = CGEvent(keyboardEventSource: source, virtualKey: CGKeyCode(key), keyDown: true)
         let keyUp = CGEvent(keyboardEventSource: source, virtualKey: CGKeyCode(key), keyDown: false)

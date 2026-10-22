@@ -51,11 +51,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             SelectionCapture.requestAccessibilityPermission()
             return
         }
+        // Read before showPopover() activates GrammarBar and becomes "frontmost" itself.
+        let capturedFrom = NSWorkspace.shared.frontmostApplication
         Task {
             let text = await SelectionCapture.captureSelectedText()
             await MainActor.run {
                 if let text, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                     model.input = text
+                    model.sourceApp = capturedFrom
+                } else {
+                    model.sourceApp = nil
                 }
                 showPopover()
             }
@@ -66,6 +71,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if popover.isShown {
             closePopover()
         } else {
+            // Opened by hand, not a capture — don't auto-replace from a stale prior capture.
+            model.sourceApp = nil
             showPopover()
         }
     }
